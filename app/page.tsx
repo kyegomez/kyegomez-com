@@ -7,10 +7,11 @@ export default function Page() {
         Kye Gomez
       </h1>
       <p className="mb-4">
-        {`My name is Kye Gomez and I build neural nets. I've been programming since I was 12 years old.
-        I never finished high school because I'm low IQ and never went to college because I'm lazy but I lead
-        Agora, an open source AI Research lab with 8,200+ researchers. We've trained thousands of models. And, I'm also building the 
-        swarms `}
+        {`Hi, I'm Kye Gomez, and I build neural networks. 
+        I've been programming since I was 12 years old, and today, I lead Agora, an open-source AI research lab with over 8,200 researchers worldwide. 
+        We've successfully trained thousands of models and continue to push the boundaries of AI innovation.
+
+        I'm also working on Swarms, a framework for orchestrating intelligent agents. If you're interested in AI research or neural networks, check out my work on GitHub and YouTube, where I share insights, projects, and tutorials.`}
       </p>
       <div className="my-8">
         {/* <BlogPosts /> */}
