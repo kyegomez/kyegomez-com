@@ -42,6 +42,9 @@ export default function Footer() {
         <LinkButton href="https://cal.com/swarms" text="Book a Meeting" />
         <LinkButton href="mailto:kye@kyegomez.com" text="Email" />
         <LinkButton href="tel:+17866955339" text="786-695-5339" />
+        <LinkButton href="https://github.com/sponsors/kyegomez" text="Sponsor Me on Github" />
+        <LinkButton href="https://buymeacoffee.com/kyegomez" text="Buy Me a Coffee" />
+        {/* <LinkButton href="https://buymeacoffee.com/kyegomez" text="Buy Me a Coffee" /> */}
       </div>
       <p className="mt-8 text-center text-neutral-600 dark:text-neutral-300">
         © {new Date().getFullYear()} MIT Licensed
