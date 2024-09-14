@@ -15,65 +15,34 @@ function ArrowIcon() {
   )
 }
 
-
 export default function Footer() {
+  const LinkButton = ({ href, text }: { href: string; text: string }) => (
+    <li>
+      <a
+        href={href}
+        className="flex items-center rounded-md bg-neutral-100 px-4 py-2 transition-all hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <ArrowIcon />
+        <span className="ml-2">{text}</span>
+      </a>
+    </li>
+  );
+
   return (
     <footer className="mb-16">
-      <div className="flex flex-col space-y-4 md:space-y-8">
-        <ul className="font-sm flex flex-col space-y-2 text-neutral-600 md:flex-row md:space-x-4 md:space-y-0 dark:text-neutral-300">
-          <li>
-            <a href="/rss">
-              <ArrowIcon />
-              <p className="ml-2 h-7">rss</p>
-            </a>
-          </li>
-          <li>
-            <a href="https://github.com/kyegomez">
-              <ArrowIcon />
-              <p className="ml-2 h-7">github</p>
-            </a>
-          </li>
-          <li>
-            <a href="https://x.com/KyeGomezB">
-              <ArrowIcon />
-              <p className="ml-2 h-7">Twitter/X</p>
-            </a>
-          </li>
-          <li>
-            <a href="https://discord.gg/agora-999382051935506503">
-              <ArrowIcon />
-              <p className="ml-2 h-7">Discord</p>
-            </a>
-          </li>
-        </ul>
-        <ul className="font-sm flex flex-col space-y-2 text-neutral-600 md:flex-row md:space-x-4 md:space-y-0 dark:text-neutral-300">
-          <li>
-            <a href="https://www.youtube.com/@kyegomez3242">
-              <ArrowIcon />
-              <p className="ml-2 h-7">Youtube</p>
-            </a>
-          </li>
-          <li>
-            <a href="https://lu.ma/swarms_calendar">
-              <ArrowIcon />
-              <p className="ml-2 h-7">Swarms Calendar</p>
-            </a>
-          </li>
-          <li>
-            <a href="mailto:kye@kyegomez.com">
-              <ArrowIcon />
-              <p className="ml-2 h-7">Email</p>
-            </a>
-          </li>
-          <li>
-            <a>
-              <ArrowIcon />
-              <p className="ml-2 h-7">786-695-5339</p>
-            </a>
-          </li>
-        </ul>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
+        <LinkButton href="/rss" text="RSS" />
+        <LinkButton href="https://github.com/kyegomez" text="GitHub" />
+        <LinkButton href="https://x.com/KyeGomezB" text="Twitter/X" />
+        <LinkButton href="https://discord.gg/agora-999382051935506503" text="Discord" />
+        <LinkButton href="https://www.youtube.com/@kyegomez3242" text="YouTube" />
+        <LinkButton href="https://lu.ma/swarms_calendar" text="Swarms Calendar" />
+        <LinkButton href="mailto:kye@kyegomez.com" text="Email" />
+        <LinkButton href="tel:+17866955339" text="786-695-5339" />
       </div>
-      <p className="mt-8 text-neutral-600 dark:text-neutral-300">
+      <p className="mt-8 text-center text-neutral-600 dark:text-neutral-300">
         © {new Date().getFullYear()} MIT Licensed
       </p>
     </footer>
