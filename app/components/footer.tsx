@@ -17,29 +17,29 @@ function ArrowIcon() {
 
 export default function Footer() {
   const LinkButton = ({ href, text }: { href: string; text: string }) => (
-    <li>
+    <li className="w-full">
       <a
         href={href}
-        className="flex items-center rounded-md bg-neutral-100 px-4 py-2 transition-all hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700"
+        className="flex w-full items-center justify-between rounded-md bg-neutral-100 px-4 py-3 text-sm transition-all hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700"
         target="_blank"
         rel="noopener noreferrer"
       >
+        <span>{text}</span>
         <ArrowIcon />
-        <span className="ml-2">{text}</span>
       </a>
     </li>
   );
 
   const CategorySection = ({ title, children }: { title: string; children: React.ReactNode }) => (
     <div className="mb-8">
-      <h3 className="mb-4 text-lg font-semibold">{title}</h3>
-      <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">{children}</ul>
+      <h3 className="mb-4 text-lg font-semibold text-neutral-800 dark:text-neutral-200">{title}</h3>
+      <ul className="space-y-2">{children}</ul>
     </div>
   );
 
   return (
-    <footer className="mb-16">
-      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+    <footer className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+      <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
         <CategorySection title="Connect">
           <LinkButton href="https://github.com/kyegomez" text="GitHub" />
           <LinkButton href="https://x.com/KyeGomezB" text="Twitter/X" />
@@ -64,7 +64,7 @@ export default function Footer() {
           <LinkButton href="https://polar.sh/kyegomez/" text="Fund Issues on Polar" />
         </CategorySection>
       </div>
-      <p className="mt-8 text-center text-neutral-600 dark:text-neutral-300">
+      <p className="mt-8 text-center text-sm text-neutral-500 dark:text-neutral-400">
         © {new Date().getFullYear()} MIT Licensed
       </p>
     </footer>
