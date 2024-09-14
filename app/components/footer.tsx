@@ -45,6 +45,8 @@ export default function Footer() {
           <LinkButton href="https://x.com/KyeGomezB" text="Twitter/X" />
           <LinkButton href="https://discord.gg/agora-999382051935506503" text="Discord" />
           <LinkButton href="https://www.youtube.com/@kyegomez3242" text="YouTube" />
+          <LinkButton href="https://www.instagram.com/kye_gomez/" text="Instagram" />
+          <LinkButton href="https://www.linkedin.com/in/kye-g-38759a207/" text="Linkedin" />
         </CategorySection>
         
         <CategorySection title="Resources">
