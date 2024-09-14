@@ -39,6 +39,7 @@ export default function Footer() {
         <LinkButton href="https://discord.gg/agora-999382051935506503" text="Discord" />
         <LinkButton href="https://www.youtube.com/@kyegomez3242" text="YouTube" />
         <LinkButton href="https://lu.ma/swarms_calendar" text="Swarms Calendar" />
+        <LinkButton href="https://cal.com/swarms" text="Book a Meeting" />
         <LinkButton href="mailto:kye@kyegomez.com" text="Email" />
         <LinkButton href="tel:+17866955339" text="786-695-5339" />
       </div>
