@@ -103,7 +103,7 @@ export default function Footer() {
             target="_blank"
           >
             <ArrowIcon />
-            <p className="ml-2 h-7">Phone Number: 786-695-5339</p>
+            <p className="ml-2 h-7">786-695-5339</p>
           </a>
         </li>
       </ul>
