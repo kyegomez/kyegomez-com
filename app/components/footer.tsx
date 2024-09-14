@@ -30,21 +30,39 @@ export default function Footer() {
     </li>
   );
 
+  const CategorySection = ({ title, children }: { title: string; children: React.ReactNode }) => (
+    <div className="mb-8">
+      <h3 className="mb-4 text-lg font-semibold">{title}</h3>
+      <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2">{children}</ul>
+    </div>
+  );
+
   return (
     <footer className="mb-16">
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-4">
-        <LinkButton href="/rss" text="RSS" />
-        <LinkButton href="https://github.com/kyegomez" text="GitHub" />
-        <LinkButton href="https://x.com/KyeGomezB" text="Twitter/X" />
-        <LinkButton href="https://discord.gg/agora-999382051935506503" text="Discord" />
-        <LinkButton href="https://www.youtube.com/@kyegomez3242" text="YouTube" />
-        <LinkButton href="https://lu.ma/swarms_calendar" text="Swarms Calendar" />
-        <LinkButton href="https://cal.com/swarms" text="Book a Meeting" />
-        <LinkButton href="mailto:kye@kyegomez.com" text="Email" />
-        <LinkButton href="tel:+17866955339" text="786-695-5339" />
-        <LinkButton href="https://github.com/sponsors/kyegomez" text="Sponsor Me on Github" />
-        <LinkButton href="https://buymeacoffee.com/kyegomez" text="Buy Me a Coffee" />
-        <LinkButton href="https://polar.sh/kyegomez/" text="Fund Issues and Bugs on Polar" />
+      <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <CategorySection title="Connect">
+          <LinkButton href="https://github.com/kyegomez" text="GitHub" />
+          <LinkButton href="https://x.com/KyeGomezB" text="Twitter/X" />
+          <LinkButton href="https://discord.gg/agora-999382051935506503" text="Discord" />
+          <LinkButton href="https://www.youtube.com/@kyegomez3242" text="YouTube" />
+        </CategorySection>
+        
+        <CategorySection title="Resources">
+          <LinkButton href="/rss" text="RSS" />
+          <LinkButton href="https://lu.ma/swarms_calendar" text="Swarms Calendar" />
+        </CategorySection>
+        
+        <CategorySection title="Contact">
+          <LinkButton href="mailto:kye@kyegomez.com" text="Email" />
+          <LinkButton href="tel:+17866955339" text="786-695-5339" />
+          <LinkButton href="https://cal.com/swarms" text="Book a Meeting" />
+        </CategorySection>
+        
+        <CategorySection title="Support">
+          <LinkButton href="https://github.com/sponsors/kyegomez" text="Sponsor on Github" />
+          <LinkButton href="https://buymeacoffee.com/kyegomez" text="Buy Me a Coffee" />
+          <LinkButton href="https://polar.sh/kyegomez/" text="Fund Issues on Polar" />
+        </CategorySection>
       </div>
       <p className="mt-8 text-center text-neutral-600 dark:text-neutral-300">
         © {new Date().getFullYear()} MIT Licensed
