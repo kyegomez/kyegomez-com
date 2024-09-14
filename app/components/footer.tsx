@@ -53,6 +53,11 @@ export default function Footer() {
           <LinkButton href="/rss" text="RSS" />
           <LinkButton href="https://lu.ma/swarms_calendar" text="Swarms Calendar" />
         </CategorySection>
+
+        <CategorySection title="Blog">
+          <LinkButton href="https://medium.com/@kyeg" text="Medium" />
+          <LinkButton href="https://agoralab.ai" text="Agora Blog" />
+        </CategorySection>
         
         <CategorySection title="Contact">
           <LinkButton href="mailto:kye@kyegomez.com" text="Email" />
