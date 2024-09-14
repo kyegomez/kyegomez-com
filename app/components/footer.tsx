@@ -15,98 +15,64 @@ function ArrowIcon() {
   )
 }
 
+
 export default function Footer() {
   return (
     <footer className="mb-16">
-      <ul className="font-sm mt-8 flex flex-col space-x-0 space-y-2 text-neutral-600 md:flex-row md:space-x-4 md:space-y-0 dark:text-neutral-300">
-        {/* <li>
-          <a
-            className="flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
-            rel="noopener noreferrer"
-            target="_blank"
-            href="/rss"
-          >
-            <ArrowIcon />
-            <p className="ml-2 h-7">rss</p>
-          </a>
-        </li> */}
-        <li>
-          <a
-            className="flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
-            rel="noopener noreferrer"
-            target="_blank"
-            href="https://github.com/kyegomez"
-          >
-            <ArrowIcon />
-            <p className="ml-2 h-7">github</p>
-          </a>
-        </li>
-        <li>
-          <a
-            className="flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
-            rel="noopener noreferrer"
-            target="_blank"
-            href="https://x.com/KyeGomezB"
-          >
-            <ArrowIcon />
-            <p className="ml-2 h-7">Twitter/X</p>
-          </a>
-        </li>
-        <li>
-          <a
-            className="flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
-            rel="noopener noreferrer"
-            target="_blank"
-            href="https://discord.gg/agora-999382051935506503"
-          >
-            <ArrowIcon />
-            <p className="ml-2 h-7">Discord</p>
-          </a>
-        </li>
-        <li>
-          <a
-            className="flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
-            rel="noopener noreferrer"
-            target="_blank"
-            href="https://www.youtube.com/@kyegomez3242"
-          >
-            <ArrowIcon />
-            <p className="ml-2 h-7">Youtube</p>
-          </a>
-        </li>
-        <li>
-          <a
-            className="flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
-            rel="noopener noreferrer"
-            target="_blank"
-            href="https://lu.ma/swarms_calendar"
-          >
-            <ArrowIcon />
-            <p className="ml-2 h-7">Swarms Calendar</p>
-          </a>
-        </li>
-        <li>
-          <a
-            className="flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
-            rel="noopener noreferrer"
-            target="_blank"
-            href="mailto:kye@kyegomez.com"
-          >
-            <ArrowIcon />
-            <p className="ml-2 h-7">Email</p>
-          </a>
-        </li>
-        <li>
-          <a
-            className="flex items-center transition-all hover:text-neutral-800 dark:hover:text-neutral-100"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            <ArrowIcon />
-            <p className="ml-2 h-7">786-695-5339</p>
-          </a>
-        </li>
-      </ul>
+      <div className="flex flex-col space-y-4 md:space-y-8">
+        <ul className="font-sm flex flex-col space-y-2 text-neutral-600 md:flex-row md:space-x-4 md:space-y-0 dark:text-neutral-300">
+          <li>
+            <a href="/rss">
+              <ArrowIcon />
+              <p className="ml-2 h-7">rss</p>
+            </a>
+          </li>
+          <li>
+            <a href="https://github.com/kyegomez">
+              <ArrowIcon />
+              <p className="ml-2 h-7">github</p>
+            </a>
+          </li>
+          <li>
+            <a href="https://x.com/KyeGomezB">
+              <ArrowIcon />
+              <p className="ml-2 h-7">Twitter/X</p>
+            </a>
+          </li>
+          <li>
+            <a href="https://discord.gg/agora-999382051935506503">
+              <ArrowIcon />
+              <p className="ml-2 h-7">Discord</p>
+            </a>
+          </li>
+        </ul>
+        <ul className="font-sm flex flex-col space-y-2 text-neutral-600 md:flex-row md:space-x-4 md:space-y-0 dark:text-neutral-300">
+          <li>
+            <a href="https://www.youtube.com/@kyegomez3242">
+              <ArrowIcon />
+              <p className="ml-2 h-7">Youtube</p>
+            </a>
+          </li>
+          <li>
+            <a href="https://lu.ma/swarms_calendar">
+              <ArrowIcon />
+              <p className="ml-2 h-7">Swarms Calendar</p>
+            </a>
+          </li>
+          <li>
+            <a href="mailto:kye@kyegomez.com">
+              <ArrowIcon />
+              <p className="ml-2 h-7">Email</p>
+            </a>
+          </li>
+          <li>
+            <a>
+              <ArrowIcon />
+              <p className="ml-2 h-7">786-695-5339</p>
+            </a>
+          </li>
+        </ul>
+      </div>
       <p className="mt-8 text-neutral-600 dark:text-neutral-300">
         © {new Date().getFullYear()} MIT Licensed
       </p>
