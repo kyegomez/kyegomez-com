@@ -70,6 +70,11 @@ export default function Footer() {
           <LinkButton href="https://buymeacoffee.com/kyegomez" text="Buy Me a Coffee" />
           <LinkButton href="https://polar.sh/kyegomez/" text="Fund Issues on Polar" />
         </CategorySection>
+        <CategorySection title="Company Websites">
+          <LinkButton href="https://swarms.world" text="Swarms" />
+          <LinkButton href="https://agoralab.ai" text="Agora" />
+          <LinkButton href="https://apac.ai" text="APAC AI" />
+        </CategorySection>
       </div>
       <p className="mt-8 text-center text-sm text-neutral-500 dark:text-neutral-400">
         © {new Date().getFullYear()} MIT Licensed
