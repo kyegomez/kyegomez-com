@@ -66,17 +66,20 @@ export default function HomePage() {
         }))
         .filter(org => org.lifetime < 200); // Remove old organisms
 
+      // Create array for new organisms
+      const newOrganisms: Organism[] = [];
+
       // Reproduce based on proximity
-      const newOrganisms = [];
-      for (const org of updated) {
+      updated.forEach(org => {
         if (Math.random() < 0.01) {
           newOrganisms.push(createOrganism(org.x, org.y));
         }
-      }
+      });
 
       // Keep population in check
       const maxOrganisms = 100;
-      return [...updated, ...newOrganisms].slice(-maxOrganisms);
+      const combined = [...updated, ...newOrganisms];
+      return combined.slice(-maxOrganisms);
     });
 
     frameRef.current = requestAnimationFrame(updateOrganisms);
@@ -84,8 +87,23 @@ export default function HomePage() {
 
   useEffect(() => {
     frameRef.current = requestAnimationFrame(updateOrganisms);
-    return () => cancelAnimationFrame(frameRef.current);
+    return () => {
+      if (frameRef.current) {
+        cancelAnimationFrame(frameRef.current);
+      }
+    };
   }, [updateOrganisms]);
+
+  useEffect(() => {
+    // Initialize with a few organisms
+    const initialOrganisms = Array(5)
+      .fill(null)
+      .map(() => createOrganism(
+        Math.random() * window.innerWidth,
+        Math.random() * window.innerHeight
+      ));
+    setOrganisms(initialOrganisms);
+  }, [createOrganism]);
 
   return (
     <div className="min-h-screen bg-black text-white relative">
@@ -113,51 +131,53 @@ export default function HomePage() {
         ))}
       </div>
 
-      {/* Content Layer */}
+      {/* Content Layer - now spans full width for click detection */}
       <div 
-        className="relative z-10 max-w-4xl mx-auto p-8"
+        className="relative z-10 min-h-screen w-full"
         onClick={handleClick}
       >
-        <h1 className="text-6xl font-bold mb-8 text-red-500 tracking-tight">
-          Kye Gomez
-        </h1>
+        <div className="max-w-4xl mx-auto p-8">
+          <h1 className="text-6xl font-bold mb-8 text-red-500 tracking-tight">
+            Kye Gomez
+          </h1>
 
-        <div className="prose prose-invert max-w-none">
-          <p className="text-xl mb-6">
-            Neural architect crafting tomorrow's intelligence. Watch the AI symbols evolve as you interact with the page...
-          </p>
+          <div className="prose prose-invert max-w-none">
+            <p className="text-xl mb-6">
+              Neural architect crafting tomorrow's intelligence. Click anywhere to spawn new AI agents...
+            </p>
 
-          <div className="bg-gray-900/50 p-6 rounded-lg border border-red-500/30 mb-8">
-            <h2 className="text-2xl font-semibold text-red-500 mb-4">Background Evolution</h2>
-            <p>Each symbol represents an AI agent evolving in real-time. Click anywhere to spawn new agents!</p>
-            <ul className="list-none space-y-2 mt-4">
-              <li>• Active Agents: {organisms.length}</li>
-              <li>• Generation: {generation}</li>
-              <li>• Mutations: Continuous</li>
-            </ul>
+            <div className="bg-gray-900/50 p-6 rounded-lg border border-red-500/30 mb-8">
+              <h2 className="text-2xl font-semibold text-red-500 mb-4">Background Evolution</h2>
+              <p>Each symbol represents an AI agent evolving in real-time. Click anywhere to spawn new agents!</p>
+              <ul className="list-none space-y-2 mt-4">
+                <li>• Active Agents: {organisms.length}</li>
+                <li>• Generation: {generation}</li>
+                <li>• Mutations: Continuous</li>
+              </ul>
+            </div>
+
+            <section className="mb-12">
+              <h2 className="text-2xl font-semibold text-red-500 mb-4">About Me</h2>
+              <p className="mb-4">
+                I've been programming since I was 12 years old, and today, I lead Agora, 
+                an open-source AI research lab non-profit with over 8,200 researchers worldwide.
+              </p>
+              <p className="mb-4">
+                We've successfully trained thousands of models and continue to push the 
+                boundaries of AI innovation.
+              </p>
+            </section>
+
+            <section className="mb-12">
+              <h2 className="text-2xl font-semibold text-red-500 mb-4">Current Projects</h2>
+              <p>
+                I'm working on Swarms, a framework for orchestrating millions of agents 
+                to automate recurring enterprise operations. If you're interested in AI 
+                research or neural networks, check out my work on GitHub and YouTube, 
+                where I share insights, projects, and tutorials.
+              </p>
+            </section>
           </div>
-
-          <section className="mb-12">
-            <h2 className="text-2xl font-semibold text-red-500 mb-4">About Me</h2>
-            <p className="mb-4">
-              I've been programming since I was 12 years old, and today, I lead Agora, 
-              an open-source AI research lab non-profit with over 8,200 researchers worldwide.
-            </p>
-            <p className="mb-4">
-              We've successfully trained thousands of models and continue to push the 
-              boundaries of AI innovation.
-            </p>
-          </section>
-
-          <section className="mb-12">
-            <h2 className="text-2xl font-semibold text-red-500 mb-4">Current Projects</h2>
-            <p>
-              I'm working on Swarms, a framework for orchestrating millions of agents 
-              to automate recurring enterprise operations. If you're interested in AI 
-              research or neural networks, check out my work on GitHub and YouTube, 
-              where I share insights, projects, and tutorials.
-            </p>
-          </section>
         </div>
       </div>
     </div>
