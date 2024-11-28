@@ -1,195 +1,203 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
+import { AlertCircle, Brain, Zap, Crown } from 'lucide-react';
 
 interface Gene {
-  movement: number;
+  speed: number;
+  adaptability: number;
   intelligence: number;
-  cooperation: number;
-  resilience: number;
+  power: number;
 }
 
-interface Organism {
+interface Agent {
   id: number;
   genes: Gene;
   fitness: number;
   x: number;
   y: number;
-  emoji: string;
   generation: number;
+  symbol: string;
+  size: number;
 }
 
-const POPULATION_SIZE = 30;
-const MUTATION_RATE = 0.1;
-const GRID_SIZE = { width: 60, height: 20 };
+const INITIAL_POPULATION = 15;
+const MUTATION_RATE = 0.15;
+const SURVIVAL_THRESHOLD = 0.6;
 
-// Puzzle pieces that reveal your introduction
-const puzzlePieces = [
-  "Neural architect crafting tomorrow's intelligence",
-  "Founded Agora, uniting 8,200+ AI researchers globally",
-  "Built first neural network at age 12",
-  "Leading Swarms: orchestrating million-agent systems",
-  "Open-source advocate and AI accessibility champion"
-];
-
-const BackgroundEvolution = () => {
-  const [organisms, setOrganisms] = useState<Organism[]>([]);
+const EvolutionGame = () => {
+  const [agents, setAgents] = useState<Agent[]>([]);
   const [generation, setGeneration] = useState(0);
+  const [highestFitness, setHighestFitness] = useState(0);
+  const [gameSpeed, setGameSpeed] = useState(1);
+  const [survivedGenerations, setSurvivedGenerations] = useState(0);
+  const [isGameOver, setIsGameOver] = useState(false);
 
-  const calculateFitness = useCallback((genes: Gene, positions: {x: number, y: number}[]) => {
-    const positionDensity = positions.filter(p => 
-      Math.abs(p.x) < 5 && Math.abs(p.y) < 5
-    ).length;
+  const symbols = ['◈', '◇', '◆', '⬡', '⬢', '△', '▲', '○', '●'];
 
-    return (
-      genes.intelligence * 0.3 +
-      genes.cooperation * 0.2 +
-      genes.resilience * 0.25 +
-      genes.movement * 0.15 -
-      (positionDensity * 0.1)
-    );
-  }, []);
+  const initializeAgent = (id: number): Agent => ({
+    id,
+    genes: {
+      speed: Math.random(),
+      adaptability: Math.random(),
+      intelligence: Math.random(),
+      power: Math.random(),
+    },
+    fitness: 0,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    generation: 0,
+    symbol: symbols[Math.floor(Math.random() * symbols.length)],
+    size: 1
+  });
 
   useEffect(() => {
-    const initialPopulation = Array.from({ length: POPULATION_SIZE }, (_, id) => ({
-      id,
-      genes: {
-        movement: Math.random(),
-        intelligence: Math.random(),
-        cooperation: Math.random(),
-        resilience: Math.random()
-      },
-      fitness: 0,
-      x: Math.floor(Math.random() * GRID_SIZE.width),
-      y: Math.floor(Math.random() * GRID_SIZE.height),
-      emoji: ['🧬', '🤖', '🔮', '💡', '⚛️'][Math.floor(Math.random() * 5)],
-      generation: 0
-    }));
-    setOrganisms(initialPopulation);
+    setAgents(Array.from({ length: INITIAL_POPULATION }, (_, i) => initializeAgent(i)));
+  }, []);
+
+  const calculateFitness = useCallback((agent: Agent) => {
+    const { speed, adaptability, intelligence, power } = agent.genes;
+    const environmentalPressure = Math.sin(Date.now() / 1000) * 0.2 + 0.8;
+    return (speed * 0.25 + adaptability * 0.3 + intelligence * 0.25 + power * 0.2) * environmentalPressure;
   }, []);
 
   const evolve = useCallback(() => {
-    setOrganisms(prev => {
-      const positions = prev.map(o => ({ x: o.x, y: o.y }));
-      const withFitness = prev.map(org => ({
-        ...org,
-        fitness: calculateFitness(org.genes, positions)
+    setAgents(prev => {
+      // Calculate fitness for all agents
+      const withFitness = prev.map(agent => ({
+        ...agent,
+        fitness: calculateFitness(agent)
       }));
 
-      const select = () => {
-        const tournament = Array.from({ length: 3 }, () => 
-          withFitness[Math.floor(Math.random() * withFitness.length)]
-        );
-        return tournament.reduce((a, b) => a.fitness > b.fitness ? a : b);
-      };
+      // Sort by fitness and get survivors
+      const sorted = [...withFitness].sort((a, b) => b.fitness - a.first);
+      setHighestFitness(sorted[0].fitness);
 
-      const newPopulation = Array.from({ length: POPULATION_SIZE }, () => {
-        const parent1 = select();
-        const parent2 = select();
+      // Check if population is thriving
+      const averageFitness = withFitness.reduce((sum, agent) => sum + agent.fitness, 0) / withFitness.length;
+      
+      if (averageFitness < SURVIVAL_THRESHOLD) {
+        setIsGameOver(true);
+        return prev;
+      }
 
-        const childGenes = {
-          movement: Math.random() < 0.5 ? parent1.genes.movement : parent2.genes.movement,
-          intelligence: Math.random() < 0.5 ? parent1.genes.intelligence : parent2.genes.intelligence,
-          cooperation: Math.random() < 0.5 ? parent1.genes.cooperation : parent2.genes.cooperation,
-          resilience: Math.random() < 0.5 ? parent1.genes.resilience : parent2.genes.resilience
+      setSurvivedGenerations(g => g + 1);
+
+      // Create next generation
+      const survivors = sorted.slice(0, Math.ceil(sorted.length * 0.5));
+      const newGeneration = survivors.flatMap(parent => {
+        const partner = survivors[Math.floor(Math.random() * survivors.length)];
+        const child = {
+          ...initializeAgent(Math.random()),
+          generation: parent.generation + 1,
+          symbol: Math.random() < 0.9 ? parent.symbol : symbols[Math.floor(Math.random() * symbols.length)],
+          genes: {
+            speed: Math.random() < MUTATION_RATE ? Math.random() : (parent.genes.speed + partner.genes.speed) / 2,
+            adaptability: Math.random() < MUTATION_RATE ? Math.random() : (parent.genes.adaptability + partner.genes.adaptability) / 2,
+            intelligence: Math.random() < MUTATION_RATE ? Math.random() : (parent.genes.intelligence + partner.genes.intelligence) / 2,
+            power: Math.random() < MUTATION_RATE ? Math.random() : (parent.genes.power + partner.genes.power) / 2,
+          }
         };
-
-        if (Math.random() < MUTATION_RATE) {
-          const geneToMutate = Object.keys(childGenes)[Math.floor(Math.random() * 4)] as keyof Gene;
-          childGenes[geneToMutate] = Math.random();
-        }
-
-        return {
-          id: Math.random(),
-          genes: childGenes,
-          fitness: 0,
-          x: Math.floor(Math.random() * GRID_SIZE.width),
-          y: Math.floor(Math.random() * GRID_SIZE.height),
-          emoji: parent1.emoji,
-          generation: parent1.generation + 1
-        };
+        return [child];
       });
 
-      return newPopulation;
+      setGeneration(g => g + 1);
+      return newGeneration;
     });
-    setGeneration(g => g + 1);
   }, [calculateFitness]);
 
   useEffect(() => {
-    const timer = setInterval(evolve, 100);
+    if (isGameOver) return;
+    const timer = setInterval(evolve, 1000 / gameSpeed);
     return () => clearInterval(timer);
-  }, [evolve]);
+  }, [evolve, gameSpeed, isGameOver]);
 
   return (
-    <div className="fixed inset-0 pointer-events-none opacity-20 font-mono overflow-hidden">
-      {organisms.map(org => (
-        <div
-          key={org.id}
-          className="absolute transition-all duration-1000"
-          style={{
-            left: `${(org.x / GRID_SIZE.width) * 100}%`,
-            top: `${(org.y / GRID_SIZE.height) * 100}%`,
-            transform: `translate(-50%, -50%) scale(${org.fitness + 0.5})`
-          }}
-        >
-          {org.emoji}
-        </div>
-      ))}
-    </div>
-  );
-};
+    <div className="min-h-screen bg-black text-white p-8">
+      <div className="max-w-4xl mx-auto">
+        <h1 className="text-6xl font-bold mb-8 text-red-500 tracking-tight">
+          Neural Evolution
+        </h1>
 
-const PuzzleIntro = () => {
-  const [solvedPieces, setSolvedPieces] = useState<number[]>([]);
-  const [currentChallenge, setCurrentChallenge] = useState<string>('');
-
-  useEffect(() => {
-    const challenges = [
-      "What drives a 12-year-old to start coding? (click when you know)",
-      "How many researchers are part of Agora? (click when you know)",
-      "What framework orchestrates millions of agents? (click when you know)",
-      "What's the key to accessible AI? (click when you know)",
-      "Neural networks are built for...? (click when you know)"
-    ];
-    setCurrentChallenge(challenges[solvedPieces.length]);
-  }, [solvedPieces]);
-
-  const handlePuzzleClick = () => {
-    if (solvedPieces.length < puzzlePieces.length) {
-      setSolvedPieces(prev => [...prev, prev.length]);
-    }
-  };
-
-  return (
-    <div className="relative z-10">
-      <h1 className="mb-8 text-4xl font-bold tracking-tighter bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-        Decode My Story
-      </h1>
-      
-      <div className="space-y-4">
-        {puzzlePieces.map((piece, index) => (
-          <div 
-            key={index}
-            className={`p-4 rounded-lg transition-all duration-500 ${
-              solvedPieces.includes(index) 
-                ? 'bg-blue-100 cursor-default'
-                : 'bg-gray-100 cursor-pointer hover:bg-gray-200'
-            }`}
-            onClick={solvedPieces.includes(index) ? undefined : handlePuzzleClick}
-          >
-            {solvedPieces.includes(index) ? piece : currentChallenge}
+        <div className="grid grid-cols-2 gap-8 mb-8">
+          <div className="bg-gray-900 p-6 rounded-lg border border-red-500/30">
+            <div className="flex items-center gap-2 mb-4">
+              <Brain className="text-red-500" />
+              <h2 className="text-2xl font-semibold text-red-500">Stats</h2>
+            </div>
+            <div className="space-y-2">
+              <p>Generation: {generation}</p>
+              <p>Survived Generations: {survivedGenerations}</p>
+              <p>Population: {agents.length}</p>
+              <p>Highest Fitness: {highestFitness.toFixed(3)}</p>
+            </div>
           </div>
-        ))}
+
+          <div className="bg-gray-900 p-6 rounded-lg border border-red-500/30">
+            <div className="flex items-center gap-2 mb-4">
+              <Zap className="text-red-500" />
+              <h2 className="text-2xl font-semibold text-red-500">Controls</h2>
+            </div>
+            <input
+              type="range"
+              min="0.5"
+              max="3"
+              step="0.5"
+              value={gameSpeed}
+              onChange={(e) => setGameSpeed(parseFloat(e.target.value))}
+              className="w-full accent-red-500"
+            />
+            <p>Speed: {gameSpeed}x</p>
+          </div>
+        </div>
+
+        {isGameOver && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center">
+            <div className="bg-gray-900 p-8 rounded-lg border border-red-500 text-center">
+              <AlertCircle className="text-red-500 w-16 h-16 mx-auto mb-4" />
+              <h2 className="text-3xl font-bold text-red-500 mb-4">Evolution Failed</h2>
+              <p className="mb-4">Your AI species survived for {survivedGenerations} generations</p>
+              <button
+                onClick={() => window.location.reload()}
+                className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="relative h-[60vh] bg-gray-900 rounded-lg border border-red-500/30 overflow-hidden">
+          {agents.map(agent => (
+            <div
+              key={agent.id}
+              className="absolute transition-all duration-500"
+              style={{
+                left: `${agent.x}%`,
+                top: `${agent.y}%`,
+                transform: `translate(-50%, -50%) scale(${1 + agent.fitness})`,
+                color: `hsl(${agent.fitness * 360}, 100%, 50%)`
+              }}
+            >
+              <div className="text-2xl">{agent.symbol}</div>
+              {agent.fitness === highestFitness && (
+                <Crown className="absolute -top-4 left-1/2 -translate-x-1/2 text-yellow-500 w-4 h-4" />
+              )}
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-8 space-y-4">
+          <p className="text-gray-400">
+            Hello, I'm Kye Gomez. Like these evolving agents, I've been on a journey of continuous growth in AI and neural networks since age 12. Today, I lead Agora, connecting over 8,200 researchers worldwide in pushing the boundaries of artificial intelligence.
+          </p>
+          <p className="text-gray-400">
+            Through Swarms, I'm working on orchestrating millions of agents to solve complex problems. Watch these digital organisms evolve and adapt - it's a small demonstration of the principles that drive my work in AI research and development.
+          </p>
+        </div>
       </div>
     </div>
   );
 };
 
-export default function HomePage() {
-  return (
-    <section className="max-w-4xl mx-auto p-4">
-      <BackgroundEvolution />
-      <PuzzleIntro />
-    </section>
-  );
-}
+export default EvolutionGame;
