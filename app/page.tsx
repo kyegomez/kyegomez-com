@@ -1,234 +1,165 @@
 'use client';
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 
-interface Gene {
-  speed: number;
-  adaptability: number;
-  intelligence: number;
-  power: number;
-}
-
-interface Agent {
+interface Organism {
   id: number;
-  genes: Gene;
-  fitness: number;
   x: number;
   y: number;
-  generation: number;
   symbol: string;
+  color: string;
+  size: number;
+  velocity: { x: number; y: number };
+  lifetime: number;
 }
 
-const INITIAL_POPULATION = 15;
-const MUTATION_RATE = 0.15;
-const SURVIVAL_THRESHOLD = 0.4; // Lowered to make survival easier initially
-
-const EvolutionGame = () => {
-  const [agents, setAgents] = useState<Agent[]>([]);
+export default function HomePage() {
+  const [organisms, setOrganisms] = useState<Organism[]>([]);
   const [generation, setGeneration] = useState(0);
-  const [highestFitness, setHighestFitness] = useState(0);
-  const [gameSpeed, setGameSpeed] = useState(1);
-  const [survivedGenerations, setSurvivedGenerations] = useState(0);
-  const [isGameOver, setIsGameOver] = useState(false);
-  const [isInitialized, setIsInitialized] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const frameRef = useRef<number>(0);
 
-  const symbols = ['◈', '◇', '◆', '⬡', '⬢', '△', '▲', '○', '●'];
+  const symbols = '◈◇◆⬡⬢△▲○●⎔⬣⬤⬦⬥∆∇□■'.split('');
+  const colors = ['#FF3333', '#FF0066', '#FF33CC', '#CC33FF', '#3333FF'];
 
-  const initializeAgent = useCallback((id: number): Agent => ({
-    id,
-    genes: {
-      speed: Math.random(),
-      adaptability: Math.random(),
-      intelligence: Math.random(),
-      power: Math.random(),
+  const createOrganism = useCallback((x: number, y: number): Organism => ({
+    id: Math.random(),
+    x,
+    y,
+    symbol: symbols[Math.floor(Math.random() * symbols.length)],
+    color: colors[Math.floor(Math.random() * colors.length)],
+    size: Math.random() * 1.5 + 0.5,
+    velocity: {
+      x: (Math.random() - 0.5) * 2,
+      y: (Math.random() - 0.5) * 2
     },
-    fitness: 0,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    generation: 0,
-    symbol: symbols[Math.floor(Math.random() * symbols.length)]
+    lifetime: 0
   }), []);
 
-  // Initialize population
-  useEffect(() => {
-    if (!isInitialized) {
-      const initial = Array.from({ length: INITIAL_POPULATION }, (_, i) => initializeAgent(i));
-      setAgents(initial);
-      setIsInitialized(true);
-    }
-  }, [isInitialized, initializeAgent]);
+  const handleClick = useCallback((e: React.MouseEvent) => {
+    const rect = containerRef.current?.getBoundingClientRect();
+    if (!rect) return;
 
-  const calculateFitness = useCallback((agent: Agent, currentGen: number) => {
-    const { speed, adaptability, intelligence, power } = agent.genes;
-    
-    // Environmental pressure increases with generations
-    const environmentalPressure = Math.min(0.8 + (currentGen * 0.01), 1);
-    
-    // Base fitness calculation
-    const baseFitness = (
-      speed * 0.25 +
-      adaptability * 0.3 +
-      intelligence * 0.25 +
-      power * 0.2
-    );
-    
-    // Apply environmental pressure
-    return baseFitness * environmentalPressure;
-  }, []);
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
 
-  const evolve = useCallback(() => {
-    if (isGameOver) return;
+    setOrganisms(prev => [
+      ...prev,
+      ...Array(3).fill(null).map(() => createOrganism(x, y))
+    ]);
+    setGeneration(g => g + 1);
+  }, [createOrganism]);
 
-    setAgents(prev => {
-      const currentGen = generation;
+  const updateOrganisms = useCallback(() => {
+    setOrganisms(prev => {
+      // Update existing organisms
+      const updated = prev
+        .map(org => ({
+          ...org,
+          x: org.x + org.velocity.x,
+          y: org.y + org.velocity.y,
+          lifetime: org.lifetime + 1,
+          velocity: {
+            x: org.velocity.x * 0.99,
+            y: org.velocity.y * 0.99
+          }
+        }))
+        .filter(org => org.lifetime < 200); // Remove old organisms
 
-      // Calculate fitness for all agents
-      const withFitness = prev.map(agent => ({
-        ...agent,
-        fitness: calculateFitness(agent, currentGen)
-      }));
-
-      // Sort by fitness
-      const sorted = [...withFitness].sort((a, b) => b.fitness - a.fitness);
-      const maxFitness = sorted[0].fitness;
-      setHighestFitness(maxFitness);
-
-      // Check population viability
-      const averageFitness = withFitness.reduce((sum, agent) => sum + agent.fitness, 0) / withFitness.length;
-      
-      if (averageFitness < SURVIVAL_THRESHOLD && currentGen > 0) {
-        setIsGameOver(true);
-        return prev;
+      // Reproduce based on proximity
+      const newOrganisms = [];
+      for (const org of updated) {
+        if (Math.random() < 0.01) {
+          newOrganisms.push(createOrganism(org.x, org.y));
+        }
       }
 
-      // Select survivors and create new generation
-      const survivors = sorted.slice(0, Math.ceil(sorted.length * 0.5));
-      const newGeneration = Array.from({ length: INITIAL_POPULATION }, () => {
-        const parent1 = survivors[Math.floor(Math.random() * survivors.length)];
-        const parent2 = survivors[Math.floor(Math.random() * survivors.length)];
-
-        return {
-          ...initializeAgent(Math.random()),
-          generation: currentGen + 1,
-          symbol: Math.random() < 0.9 ? parent1.symbol : symbols[Math.floor(Math.random() * symbols.length)],
-          genes: {
-            speed: Math.random() < MUTATION_RATE ? Math.random() : (parent1.genes.speed + parent2.genes.speed) / 2,
-            adaptability: Math.random() < MUTATION_RATE ? Math.random() : (parent1.genes.adaptability + parent2.genes.adaptability) / 2,
-            intelligence: Math.random() < MUTATION_RATE ? Math.random() : (parent1.genes.intelligence + parent2.genes.intelligence) / 2,
-            power: Math.random() < MUTATION_RATE ? Math.random() : (parent1.genes.power + parent2.genes.power) / 2,
-          }
-        };
-      });
-
-      setGeneration(g => g + 1);
-      setSurvivedGenerations(g => g + 1);
-      return newGeneration;
+      // Keep population in check
+      const maxOrganisms = 100;
+      return [...updated, ...newOrganisms].slice(-maxOrganisms);
     });
-  }, [generation, isGameOver, calculateFitness, initializeAgent]);
+
+    frameRef.current = requestAnimationFrame(updateOrganisms);
+  }, [createOrganism]);
 
   useEffect(() => {
-    if (!isInitialized || isGameOver) return;
-    
-    const timer = setInterval(evolve, 1000 / gameSpeed);
-    return () => clearInterval(timer);
-  }, [evolve, gameSpeed, isGameOver, isInitialized]);
-
-  const handleReset = () => {
-    setIsGameOver(false);
-    setGeneration(0);
-    setSurvivedGenerations(0);
-    setHighestFitness(0);
-    setIsInitialized(false);
-  };
+    frameRef.current = requestAnimationFrame(updateOrganisms);
+    return () => cancelAnimationFrame(frameRef.current);
+  }, [updateOrganisms]);
 
   return (
-    <div className="min-h-screen bg-black text-white p-8">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-black text-white relative">
+      {/* Background Evolution Layer */}
+      <div
+        ref={containerRef}
+        className="fixed inset-0 overflow-hidden pointer-events-none"
+        style={{ zIndex: 0 }}
+      >
+        {organisms.map(org => (
+          <div
+            key={org.id}
+            className="absolute transition-transform duration-100"
+            style={{
+              left: `${org.x}px`,
+              top: `${org.y}px`,
+              color: org.color,
+              transform: `scale(${org.size})`,
+              opacity: Math.max(0, 1 - org.lifetime / 200),
+              fontSize: '1.5rem',
+            }}
+          >
+            {org.symbol}
+          </div>
+        ))}
+      </div>
+
+      {/* Content Layer */}
+      <div 
+        className="relative z-10 max-w-4xl mx-auto p-8"
+        onClick={handleClick}
+      >
         <h1 className="text-6xl font-bold mb-8 text-red-500 tracking-tight">
-          Neural Evolution
+          Kye Gomez
         </h1>
 
-        <div className="grid grid-cols-2 gap-8 mb-8">
-          <div className="bg-gray-900 p-6 rounded-lg border border-red-500/30">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-2xl">🧠</span>
-              <h2 className="text-2xl font-semibold text-red-500">Stats</h2>
-            </div>
-            <div className="space-y-2">
-              <p>Generation: {generation}</p>
-              <p>Survived Generations: {survivedGenerations}</p>
-              <p>Population: {agents.length}</p>
-              <p>Highest Fitness: {highestFitness.toFixed(3)}</p>
-            </div>
-          </div>
-
-          <div className="bg-gray-900 p-6 rounded-lg border border-red-500/30">
-            <div className="flex items-center gap-2 mb-4">
-              <span className="text-2xl">⚡</span>
-              <h2 className="text-2xl font-semibold text-red-500">Controls</h2>
-            </div>
-            <input
-              type="range"
-              min="0.5"
-              max="3"
-              step="0.5"
-              value={gameSpeed}
-              onChange={(e) => setGameSpeed(parseFloat(e.target.value))}
-              className="w-full accent-red-500"
-            />
-            <p>Speed: {gameSpeed}x</p>
-          </div>
-        </div>
-
-        <div className="relative h-[60vh] bg-gray-900 rounded-lg border border-red-500/30 overflow-hidden">
-          {agents.map(agent => (
-            <div
-              key={agent.id}
-              className="absolute transition-all duration-500"
-              style={{
-                left: `${agent.x}%`,
-                top: `${agent.y}%`,
-                transform: `translate(-50%, -50%) scale(${1 + agent.fitness})`,
-                color: `hsl(${agent.fitness * 360}, 100%, 50%)`
-              }}
-            >
-              <div className="text-2xl">{agent.symbol}</div>
-              {agent.fitness === highestFitness && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-yellow-500 text-sm">
-                  👑
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {isGameOver && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-            <div className="bg-gray-900 p-8 rounded-lg border border-red-500 text-center">
-              <div className="text-4xl mb-4">⚠️</div>
-              <h2 className="text-3xl font-bold text-red-500 mb-4">Evolution Failed</h2>
-              <p className="mb-4">Your AI species survived for {survivedGenerations} generations</p>
-              <button
-                onClick={handleReset}
-                className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition"
-              >
-                Try Again
-              </button>
-            </div>
-          </div>
-        )}
-
-        <div className="mt-8 space-y-4">
-          <p className="text-gray-400">
-            Hello, I'm Kye Gomez. Like these evolving agents, I've been on a journey of continuous growth in AI and neural networks since age 12. Today, I lead Agora, connecting over 8,200 researchers worldwide in pushing the boundaries of artificial intelligence.
+        <div className="prose prose-invert max-w-none">
+          <p className="text-xl mb-6">
+            Neural architect crafting tomorrow's intelligence. Watch the AI symbols evolve as you interact with the page...
           </p>
-          <p className="text-gray-400">
-            Through Swarms, I'm working on orchestrating millions of agents to solve complex problems. Watch these digital organisms evolve and adapt - it's a small demonstration of the principles that drive my work in AI research and development.
-          </p>
+
+          <div className="bg-gray-900/50 p-6 rounded-lg border border-red-500/30 mb-8">
+            <h2 className="text-2xl font-semibold text-red-500 mb-4">Background Evolution</h2>
+            <p>Each symbol represents an AI agent evolving in real-time. Click anywhere to spawn new agents!</p>
+            <ul className="list-none space-y-2 mt-4">
+              <li>• Active Agents: {organisms.length}</li>
+              <li>• Generation: {generation}</li>
+              <li>• Mutations: Continuous</li>
+            </ul>
+          </div>
+
+          <section className="mb-12">
+            <h2 className="text-2xl font-semibold text-red-500 mb-4">About Me</h2>
+            <p className="mb-4">
+              I've been programming since I was 12 years old, and today, I lead Agora, 
+              an open-source AI research lab non-profit with over 8,200 researchers worldwide.
+            </p>
+            <p className="mb-4">
+              We've successfully trained thousands of models and continue to push the 
+              boundaries of AI innovation.
+            </p>
+          </section>
+
+          <section className="mb-12">
+            <h2 className="text-2xl font-semibold text-red-500 mb-4">Current Projects</h2>
+            <p>
+              I'm working on Swarms, a framework for orchestrating millions of agents 
+              to automate recurring enterprise operations. If you're interested in AI 
+              research or neural networks, check out my work on GitHub and YouTube, 
+              where I share insights, projects, and tutorials.
+            </p>
+          </section>
         </div>
       </div>
     </div>
   );
-};
-
-export default EvolutionGame;
+}
