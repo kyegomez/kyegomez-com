@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { BlogPosts } from 'app/components/posts';
 
 const WaterRipple = () => {
   const canvasRef = useRef(null);
@@ -126,9 +125,6 @@ const HomePage = () => {
         where I share insights, projects, and tutorials.
       </p>
 
-      <div className="my-8">
-        <BlogPosts />
-      </div>
     </section>
   );
 };
