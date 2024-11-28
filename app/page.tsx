@@ -1,162 +1,203 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
-interface ASCIICreature {
-  id: number;
-  x: number;
-  y: number;
-  species: number;
-  energy: number;
-  dialogue: string;
-  emoji: string;
+interface Gene {
+  movement: number;
+  intelligence: number;
+  cooperation: number;
+  resilience: number;
 }
 
-const GRID_WIDTH = 40;
-const GRID_HEIGHT = 15;
-const INITIAL_POPULATION = 10;
+interface Organism {
+  id: number;
+  genes: Gene;
+  fitness: number;
+  x: number;
+  y: number;
+  emoji: string;
+  generation: number;
+}
 
-const dialogues = [
-  "Hi friend!",
-  "Let's evolve!",
-  "Neural nets!",
-  "AI is fun!",
-  "Swarms rock!",
-  "Hello world!",
-  "Let's code!",
-  "Training...",
-  "Optimizing...",
-  "Learning..."
+const POPULATION_SIZE = 30;
+const MUTATION_RATE = 0.1;
+const GRID_SIZE = { width: 60, height: 20 };
+
+// Puzzle pieces that reveal your introduction
+const puzzlePieces = [
+  "Neural architect crafting tomorrow's intelligence",
+  "Founded Agora, uniting 8,200+ AI researchers globally",
+  "Built first neural network at age 12",
+  "Leading Swarms: orchestrating million-agent systems",
+  "Open-source advocate and AI accessibility champion"
 ];
 
-const emojis = ['ʕ•ᴥ•ʔ', '(•◡•)', '(っ◔◡◔)っ', 'ʕ￫ᴥ￩ʔ', '(^◡^)', '(・◇・)', 'ʕ•͡ᴥ•ʔ', '(◕‿◕)', '(｡♥‿♥｡)', 'ʕ•ᴥ•ʔ'];
-
-export default function Page() {
-  const [creatures, setCreatures] = useState<ASCIICreature[]>([]);
+const BackgroundEvolution = () => {
+  const [organisms, setOrganisms] = useState<Organism[]>([]);
   const [generation, setGeneration] = useState(0);
+
+  // Fitness function based on multiple traits
+  const calculateFitness = useCallback((genes: Gene, positions: {x: number, y: number}[]) => {
+    const positionDensity = positions.filter(p => 
+      Math.abs(p.x) < 5 && Math.abs(p.y) < 5
+    ).length;
+
+    return (
+      genes.intelligence * 0.3 +
+      genes.cooperation * 0.2 +
+      genes.resilience * 0.25 +
+      genes.movement * 0.15 -
+      (positionDensity * 0.1) // Penalize overcrowding
+    );
+  }, []);
 
   // Initialize population
   useEffect(() => {
-    const initial = Array.from({ length: INITIAL_POPULATION }, (_, i) => ({
-      id: i,
-      x: Math.floor(Math.random() * GRID_WIDTH),
-      y: Math.floor(Math.random() * GRID_HEIGHT),
-      species: Math.floor(Math.random() * emojis.length),
-      energy: 100,
-      dialogue: dialogues[Math.floor(Math.random() * dialogues.length)],
-      emoji: emojis[Math.floor(Math.random() * emojis.length)]
+    const initialPopulation = Array.from({ length: POPULATION_SIZE }, (_, id) => ({
+      id,
+      genes: {
+        movement: Math.random(),
+        intelligence: Math.random(),
+        cooperation: Math.random(),
+        resilience: Math.random()
+      },
+      fitness: 0,
+      x: Math.floor(Math.random() * GRID_SIZE.width),
+      y: Math.floor(Math.random() * GRID_SIZE.height),
+      emoji: ['🧬', '🤖', '🔮', '💡', '⚛️'][Math.floor(Math.random() * 5)],
+      generation: 0
     }));
-    setCreatures(initial);
+    setOrganisms(initialPopulation);
   }, []);
 
-  // Update simulation
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCreatures(prev => {
-        // Move creatures and update their state
-        const updated = prev.map(creature => {
-          // Random movement
-          const newX = (creature.x + Math.floor(Math.random() * 3) - 1 + GRID_WIDTH) % GRID_WIDTH;
-          const newY = (creature.y + Math.floor(Math.random() * 3) - 1 + GRID_HEIGHT) % GRID_HEIGHT;
-          
-          // Decrease energy
-          let newEnergy = creature.energy - 1;
-          
-          // Random chance to change dialogue
-          const newDialogue = Math.random() < 0.1 ? 
-            dialogues[Math.floor(Math.random() * dialogues.length)] : 
-            creature.dialogue;
+  // Evolution step
+  const evolve = useCallback(() => {
+    setOrganisms(prev => {
+      // Calculate fitness for current population
+      const positions = prev.map(o => ({ x: o.x, y: o.y }));
+      const withFitness = prev.map(org => ({
+        ...org,
+        fitness: calculateFitness(org.genes, positions)
+      }));
 
-          return {
-            ...creature,
-            x: newX,
-            y: newY,
-            energy: newEnergy,
-            dialogue: newDialogue
-          };
-        });
+      // Selection (tournament selection)
+      const select = () => {
+        const tournament = Array.from({ length: 3 }, () => 
+          withFitness[Math.floor(Math.random() * withFitness.length)]
+        );
+        return tournament.reduce((a, b) => a.fitness > b.fitness ? a : b);
+      };
 
-        // Reproduction
-        const newCreatures = [...updated];
-        updated.forEach(creature => {
-          if (creature.energy > 80 && Math.random() < 0.1) {
-            newCreatures.push({
-              id: Math.random(),
-              x: creature.x,
-              y: creature.y,
-              species: Math.random() < 0.9 ? creature.species : Math.floor(Math.random() * emojis.length),
-              energy: 100,
-              dialogue: dialogues[Math.floor(Math.random() * dialogues.length)],
-              emoji: Math.random() < 0.9 ? creature.emoji : emojis[Math.floor(Math.random() * emojis.length)]
-            });
-          }
-        });
+      // Create new population
+      const newPopulation = Array.from({ length: POPULATION_SIZE }, () => {
+        const parent1 = select();
+        const parent2 = select();
 
-        // Remove low energy creatures
-        const survivors = newCreatures.filter(c => c.energy > 0);
+        // Crossover
+        const childGenes = {
+          movement: Math.random() < 0.5 ? parent1.genes.movement : parent2.genes.movement,
+          intelligence: Math.random() < 0.5 ? parent1.genes.intelligence : parent2.genes.intelligence,
+          cooperation: Math.random() < 0.5 ? parent1.genes.cooperation : parent2.genes.cooperation,
+          resilience: Math.random() < 0.5 ? parent1.genes.resilience : parent2.genes.resilience
+        };
 
-        // Keep population in check
-        const maxPop = 20;
-        if (survivors.length > maxPop) {
-          survivors.sort((a, b) => b.energy - a.energy);
-          survivors.length = maxPop;
+        // Mutation
+        if (Math.random() < MUTATION_RATE) {
+          const geneToMutate = Object.keys(childGenes)[Math.floor(Math.random() * 4)] as keyof Gene;
+          childGenes[geneToMutate] = Math.random();
         }
 
-        setGeneration(g => g + 1);
-        return survivors;
+        return {
+          id: Math.random(),
+          genes: childGenes,
+          fitness: 0,
+          x: Math.floor(Math.random() * GRID_SIZE.width),
+          y: Math.floor(Math.random() * GRID_SIZE.height),
+          emoji: parent1.emoji,
+          generation: parent1.generation + 1
+        };
       });
-    }, 500);
 
+      return newPopulation;
+    });
+    setGeneration(g => g + 1);
+  }, [calculateFitness]);
+
+  useEffect(() => {
+    const timer = setInterval(evolve, 100);
     return () => clearInterval(timer);
-  }, []);
+  }, [evolve]);
 
   return (
-    <section className="max-w-4xl mx-auto p-4">
+    <div className="fixed inset-0 pointer-events-none opacity-20 font-mono overflow-hidden">
+      {organisms.map(org => (
+        <div
+          key={org.id}
+          className="absolute transition-all duration-1000"
+          style={{
+            left: `${(org.x / GRID_SIZE.width) * 100}%`,
+            top: `${(org.y / GRID_SIZE.height) * 100}%`,
+            transform: `translate(-50%, -50%) scale(${org.fitness + 0.5})`
+          }}
+        >
+          {org.emoji}
+        </div>
+      ))}
+    </div>
+  );
+};
+
+const PuzzleIntro = () => {
+  const [solvedPieces, setSolvedPieces] = useState<Set<number>>(new Set());
+  const [currentChallenge, setCurrentChallenge] = useState<string>('');
+
+  useEffect(() => {
+    const challenges = [
+      "What drives a 12-year-old to start coding? (click when you know)",
+      "How many researchers are part of Agora? (click when you know)",
+      "What framework orchestrates millions of agents? (click when you know)",
+      "What's the key to accessible AI? (click when you know)",
+      "Neural networks are built for...? (click when you know)"
+    ];
+    setCurrentChallenge(challenges[solvedPieces.size]);
+  }, [solvedPieces]);
+
+  const handlePuzzleClick = () => {
+    if (solvedPieces.size < puzzlePieces.length) {
+      setSolvedPieces(prev => new Set([...prev, prev.size]));
+    }
+  };
+
+  return (
+    <div className="relative z-10">
       <h1 className="mb-8 text-4xl font-bold tracking-tighter bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-        Kye Gomez&apos;s Home Page
+        Decode My Story
       </h1>
-
-      <div className="mb-4 text-lg">
-        Generation: {generation} | Population: {creatures.length}
-      </div>
-
-      <div className="font-mono bg-black text-white p-4 rounded-lg mb-8 overflow-hidden">
-        {Array.from({ length: GRID_HEIGHT }).map((_, y) => (
-          <div key={y} className="flex whitespace-pre">
-            {Array.from({ length: GRID_WIDTH }).map((_, x) => {
-              const creature = creatures.find(c => c.x === x && c.y === y);
-              return (
-                <span key={x} className="w-6 h-6 flex items-center justify-center">
-                  {creature ? creature.emoji : ' '}
-                </span>
-              );
-            })}
-          </div>
-        ))}
-      </div>
-
-      <div className="space-y-2">
-        {creatures.map(creature => (
-          <div key={creature.id} className="text-sm">
-            {creature.emoji}: {creature.dialogue} (Energy: {creature.energy})
-          </div>
-        ))}
-      </div>
-
-      <p className="mt-8 mb-8 text-lg leading-relaxed">
-        Hello, I&apos;m Kye Gomez, and I build neural networks. 
-        I&apos;ve been programming since I was 12 years old, and today, I lead Agora, 
-        an open-source AI research lab non-profit with over 8,200 researchers worldwide. 
-        We&apos;ve successfully trained thousands of models and continue to push the 
-        boundaries of AI innovation.
-      </p>
       
-      <p className="mb-8 text-lg leading-relaxed">
-        I&apos;m also working on Swarms, a framework for orchestrating millions of 
-        agents to automate recurring enterprise operations. If you&apos;re interested 
-        in AI research or neural networks, check out my work on GitHub and YouTube, 
-        where I share insights, projects, and tutorials.
-      </p>
+      <div className="space-y-4">
+        {Array.from({ length: puzzlePieces.length }).map((_, index) => (
+          <div 
+            key={index}
+            className={`p-4 rounded-lg transition-all duration-500 ${
+              solvedPieces.has(index) 
+                ? 'bg-blue-100 cursor-default'
+                : 'bg-gray-100 cursor-pointer hover:bg-gray-200'
+            }`}
+            onClick={solvedPieces.has(index) ? undefined : handlePuzzleClick}
+          >
+            {solvedPieces.has(index) ? puzzlePieces[index] : currentChallenge}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default function HomePage() {
+  return (
+    <section className="max-w-4xl mx-auto p-4">
+      <BackgroundEvolution />
+      <PuzzleIntro />
     </section>
   );
 }
