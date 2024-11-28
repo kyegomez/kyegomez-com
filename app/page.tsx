@@ -36,7 +36,6 @@ const BackgroundEvolution = () => {
   const [organisms, setOrganisms] = useState<Organism[]>([]);
   const [generation, setGeneration] = useState(0);
 
-  // Fitness function based on multiple traits
   const calculateFitness = useCallback((genes: Gene, positions: {x: number, y: number}[]) => {
     const positionDensity = positions.filter(p => 
       Math.abs(p.x) < 5 && Math.abs(p.y) < 5
@@ -47,11 +46,10 @@ const BackgroundEvolution = () => {
       genes.cooperation * 0.2 +
       genes.resilience * 0.25 +
       genes.movement * 0.15 -
-      (positionDensity * 0.1) // Penalize overcrowding
+      (positionDensity * 0.1)
     );
   }, []);
 
-  // Initialize population
   useEffect(() => {
     const initialPopulation = Array.from({ length: POPULATION_SIZE }, (_, id) => ({
       id,
@@ -70,17 +68,14 @@ const BackgroundEvolution = () => {
     setOrganisms(initialPopulation);
   }, []);
 
-  // Evolution step
   const evolve = useCallback(() => {
     setOrganisms(prev => {
-      // Calculate fitness for current population
       const positions = prev.map(o => ({ x: o.x, y: o.y }));
       const withFitness = prev.map(org => ({
         ...org,
         fitness: calculateFitness(org.genes, positions)
       }));
 
-      // Selection (tournament selection)
       const select = () => {
         const tournament = Array.from({ length: 3 }, () => 
           withFitness[Math.floor(Math.random() * withFitness.length)]
@@ -88,12 +83,10 @@ const BackgroundEvolution = () => {
         return tournament.reduce((a, b) => a.fitness > b.fitness ? a : b);
       };
 
-      // Create new population
       const newPopulation = Array.from({ length: POPULATION_SIZE }, () => {
         const parent1 = select();
         const parent2 = select();
 
-        // Crossover
         const childGenes = {
           movement: Math.random() < 0.5 ? parent1.genes.movement : parent2.genes.movement,
           intelligence: Math.random() < 0.5 ? parent1.genes.intelligence : parent2.genes.intelligence,
@@ -101,7 +94,6 @@ const BackgroundEvolution = () => {
           resilience: Math.random() < 0.5 ? parent1.genes.resilience : parent2.genes.resilience
         };
 
-        // Mutation
         if (Math.random() < MUTATION_RATE) {
           const geneToMutate = Object.keys(childGenes)[Math.floor(Math.random() * 4)] as keyof Gene;
           childGenes[geneToMutate] = Math.random();
@@ -148,7 +140,7 @@ const BackgroundEvolution = () => {
 };
 
 const PuzzleIntro = () => {
-  const [solvedPieces, setSolvedPieces] = useState<Set<number>>(new Set());
+  const [solvedPieces, setSolvedPieces] = useState<number[]>([]);
   const [currentChallenge, setCurrentChallenge] = useState<string>('');
 
   useEffect(() => {
@@ -159,12 +151,12 @@ const PuzzleIntro = () => {
       "What's the key to accessible AI? (click when you know)",
       "Neural networks are built for...? (click when you know)"
     ];
-    setCurrentChallenge(challenges[solvedPieces.size]);
+    setCurrentChallenge(challenges[solvedPieces.length]);
   }, [solvedPieces]);
 
   const handlePuzzleClick = () => {
-    if (solvedPieces.size < puzzlePieces.length) {
-      setSolvedPieces(prev => new Set([...prev, prev.size]));
+    if (solvedPieces.length < puzzlePieces.length) {
+      setSolvedPieces(prev => [...prev, prev.length]);
     }
   };
 
@@ -175,17 +167,17 @@ const PuzzleIntro = () => {
       </h1>
       
       <div className="space-y-4">
-        {Array.from({ length: puzzlePieces.length }).map((_, index) => (
+        {puzzlePieces.map((piece, index) => (
           <div 
             key={index}
             className={`p-4 rounded-lg transition-all duration-500 ${
-              solvedPieces.has(index) 
+              solvedPieces.includes(index) 
                 ? 'bg-blue-100 cursor-default'
                 : 'bg-gray-100 cursor-pointer hover:bg-gray-200'
             }`}
-            onClick={solvedPieces.has(index) ? undefined : handlePuzzleClick}
+            onClick={solvedPieces.includes(index) ? undefined : handlePuzzleClick}
           >
-            {solvedPieces.has(index) ? puzzlePieces[index] : currentChallenge}
+            {solvedPieces.includes(index) ? piece : currentChallenge}
           </div>
         ))}
       </div>
