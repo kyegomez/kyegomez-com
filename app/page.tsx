@@ -17,12 +17,11 @@ interface Agent {
   y: number;
   generation: number;
   symbol: string;
-  size: number;
 }
 
 const INITIAL_POPULATION = 15;
 const MUTATION_RATE = 0.15;
-const SURVIVAL_THRESHOLD = 0.6;
+const SURVIVAL_THRESHOLD = 0.4; // Lowered to make survival easier initially
 
 const EvolutionGame = () => {
   const [agents, setAgents] = useState<Agent[]>([]);
@@ -31,16 +30,11 @@ const EvolutionGame = () => {
   const [gameSpeed, setGameSpeed] = useState(1);
   const [survivedGenerations, setSurvivedGenerations] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   const symbols = ['◈', '◇', '◆', '⬡', '⬢', '△', '▲', '○', '●'];
-  const icons = {
-    brain: '🧠',
-    zap: '⚡',
-    alert: '⚠️',
-    crown: '👑'
-  };
 
-  const initializeAgent = (id: number): Agent => ({
+  const initializeAgent = useCallback((id: number): Agent => ({
     id,
     genes: {
       speed: Math.random(),
@@ -52,66 +46,100 @@ const EvolutionGame = () => {
     x: Math.random() * 100,
     y: Math.random() * 100,
     generation: 0,
-    symbol: symbols[Math.floor(Math.random() * symbols.length)],
-    size: 1
-  });
+    symbol: symbols[Math.floor(Math.random() * symbols.length)]
+  }), []);
 
+  // Initialize population
   useEffect(() => {
-    setAgents(Array.from({ length: INITIAL_POPULATION }, (_, i) => initializeAgent(i)));
-  }, []);
+    if (!isInitialized) {
+      const initial = Array.from({ length: INITIAL_POPULATION }, (_, i) => initializeAgent(i));
+      setAgents(initial);
+      setIsInitialized(true);
+    }
+  }, [isInitialized, initializeAgent]);
 
-  const calculateFitness = useCallback((agent: Agent) => {
+  const calculateFitness = useCallback((agent: Agent, currentGen: number) => {
     const { speed, adaptability, intelligence, power } = agent.genes;
-    const environmentalPressure = Math.sin(Date.now() / 1000) * 0.2 + 0.8;
-    return (speed * 0.25 + adaptability * 0.3 + intelligence * 0.25 + power * 0.2) * environmentalPressure;
+    
+    // Environmental pressure increases with generations
+    const environmentalPressure = Math.min(0.8 + (currentGen * 0.01), 1);
+    
+    // Base fitness calculation
+    const baseFitness = (
+      speed * 0.25 +
+      adaptability * 0.3 +
+      intelligence * 0.25 +
+      power * 0.2
+    );
+    
+    // Apply environmental pressure
+    return baseFitness * environmentalPressure;
   }, []);
 
   const evolve = useCallback(() => {
+    if (isGameOver) return;
+
     setAgents(prev => {
+      const currentGen = generation;
+
+      // Calculate fitness for all agents
       const withFitness = prev.map(agent => ({
         ...agent,
-        fitness: calculateFitness(agent)
+        fitness: calculateFitness(agent, currentGen)
       }));
 
+      // Sort by fitness
       const sorted = [...withFitness].sort((a, b) => b.fitness - a.fitness);
-      setHighestFitness(sorted[0].fitness);
+      const maxFitness = sorted[0].fitness;
+      setHighestFitness(maxFitness);
 
+      // Check population viability
       const averageFitness = withFitness.reduce((sum, agent) => sum + agent.fitness, 0) / withFitness.length;
       
-      if (averageFitness < SURVIVAL_THRESHOLD) {
+      if (averageFitness < SURVIVAL_THRESHOLD && currentGen > 0) {
         setIsGameOver(true);
         return prev;
       }
 
-      setSurvivedGenerations(g => g + 1);
-
+      // Select survivors and create new generation
       const survivors = sorted.slice(0, Math.ceil(sorted.length * 0.5));
-      const newGeneration = survivors.flatMap(parent => {
-        const partner = survivors[Math.floor(Math.random() * survivors.length)];
-        const child = {
+      const newGeneration = Array.from({ length: INITIAL_POPULATION }, () => {
+        const parent1 = survivors[Math.floor(Math.random() * survivors.length)];
+        const parent2 = survivors[Math.floor(Math.random() * survivors.length)];
+
+        return {
           ...initializeAgent(Math.random()),
-          generation: parent.generation + 1,
-          symbol: Math.random() < 0.9 ? parent.symbol : symbols[Math.floor(Math.random() * symbols.length)],
+          generation: currentGen + 1,
+          symbol: Math.random() < 0.9 ? parent1.symbol : symbols[Math.floor(Math.random() * symbols.length)],
           genes: {
-            speed: Math.random() < MUTATION_RATE ? Math.random() : (parent.genes.speed + partner.genes.speed) / 2,
-            adaptability: Math.random() < MUTATION_RATE ? Math.random() : (parent.genes.adaptability + partner.genes.adaptability) / 2,
-            intelligence: Math.random() < MUTATION_RATE ? Math.random() : (parent.genes.intelligence + partner.genes.intelligence) / 2,
-            power: Math.random() < MUTATION_RATE ? Math.random() : (parent.genes.power + partner.genes.power) / 2,
+            speed: Math.random() < MUTATION_RATE ? Math.random() : (parent1.genes.speed + parent2.genes.speed) / 2,
+            adaptability: Math.random() < MUTATION_RATE ? Math.random() : (parent1.genes.adaptability + parent2.genes.adaptability) / 2,
+            intelligence: Math.random() < MUTATION_RATE ? Math.random() : (parent1.genes.intelligence + parent2.genes.intelligence) / 2,
+            power: Math.random() < MUTATION_RATE ? Math.random() : (parent1.genes.power + parent2.genes.power) / 2,
           }
         };
-        return [child];
       });
 
       setGeneration(g => g + 1);
+      setSurvivedGenerations(g => g + 1);
       return newGeneration;
     });
-  }, [calculateFitness]);
+  }, [generation, isGameOver, calculateFitness, initializeAgent]);
 
   useEffect(() => {
-    if (isGameOver) return;
+    if (!isInitialized || isGameOver) return;
+    
     const timer = setInterval(evolve, 1000 / gameSpeed);
     return () => clearInterval(timer);
-  }, [evolve, gameSpeed, isGameOver]);
+  }, [evolve, gameSpeed, isGameOver, isInitialized]);
+
+  const handleReset = () => {
+    setIsGameOver(false);
+    setGeneration(0);
+    setSurvivedGenerations(0);
+    setHighestFitness(0);
+    setIsInitialized(false);
+  };
 
   return (
     <div className="min-h-screen bg-black text-white p-8">
@@ -123,7 +151,7 @@ const EvolutionGame = () => {
         <div className="grid grid-cols-2 gap-8 mb-8">
           <div className="bg-gray-900 p-6 rounded-lg border border-red-500/30">
             <div className="flex items-center gap-2 mb-4">
-              <span className="text-2xl">{icons.brain}</span>
+              <span className="text-2xl">🧠</span>
               <h2 className="text-2xl font-semibold text-red-500">Stats</h2>
             </div>
             <div className="space-y-2">
@@ -136,7 +164,7 @@ const EvolutionGame = () => {
 
           <div className="bg-gray-900 p-6 rounded-lg border border-red-500/30">
             <div className="flex items-center gap-2 mb-4">
-              <span className="text-2xl">{icons.zap}</span>
+              <span className="text-2xl">⚡</span>
               <h2 className="text-2xl font-semibold text-red-500">Controls</h2>
             </div>
             <input
@@ -151,22 +179,6 @@ const EvolutionGame = () => {
             <p>Speed: {gameSpeed}x</p>
           </div>
         </div>
-
-        {isGameOver && (
-          <div className="fixed inset-0 bg-black/80 flex items-center justify-center">
-            <div className="bg-gray-900 p-8 rounded-lg border border-red-500 text-center">
-              <div className="text-4xl mb-4">{icons.alert}</div>
-              <h2 className="text-3xl font-bold text-red-500 mb-4">Evolution Failed</h2>
-              <p className="mb-4">Your AI species survived for {survivedGenerations} generations</p>
-              <button
-                onClick={() => window.location.reload()}
-                className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition"
-              >
-                Try Again
-              </button>
-            </div>
-          </div>
-        )}
 
         <div className="relative h-[60vh] bg-gray-900 rounded-lg border border-red-500/30 overflow-hidden">
           {agents.map(agent => (
@@ -183,12 +195,28 @@ const EvolutionGame = () => {
               <div className="text-2xl">{agent.symbol}</div>
               {agent.fitness === highestFitness && (
                 <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-yellow-500 text-sm">
-                  {icons.crown}
+                  👑
                 </div>
               )}
             </div>
           ))}
         </div>
+
+        {isGameOver && (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+            <div className="bg-gray-900 p-8 rounded-lg border border-red-500 text-center">
+              <div className="text-4xl mb-4">⚠️</div>
+              <h2 className="text-3xl font-bold text-red-500 mb-4">Evolution Failed</h2>
+              <p className="mb-4">Your AI species survived for {survivedGenerations} generations</p>
+              <button
+                onClick={handleReset}
+                className="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition"
+              >
+                Try Again
+              </button>
+            </div>
+          </div>
+        )}
 
         <div className="mt-8 space-y-4">
           <p className="text-gray-400">
