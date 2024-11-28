@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect, useCallback } from 'react';
-import { AlertCircle, Brain, Zap, Crown } from 'lucide-react';
 
 interface Gene {
   speed: number;
@@ -34,6 +33,12 @@ const EvolutionGame = () => {
   const [isGameOver, setIsGameOver] = useState(false);
 
   const symbols = ['◈', '◇', '◆', '⬡', '⬢', '△', '▲', '○', '●'];
+  const icons = {
+    brain: '🧠',
+    zap: '⚡',
+    alert: '⚠️',
+    crown: '👑'
+  };
 
   const initializeAgent = (id: number): Agent => ({
     id,
@@ -63,17 +68,14 @@ const EvolutionGame = () => {
 
   const evolve = useCallback(() => {
     setAgents(prev => {
-      // Calculate fitness for all agents
       const withFitness = prev.map(agent => ({
         ...agent,
         fitness: calculateFitness(agent)
       }));
 
-      // Sort by fitness and get survivors
-      const sorted = [...withFitness].sort((a, b) => b.fitness - a.first);
+      const sorted = [...withFitness].sort((a, b) => b.fitness - a.fitness);
       setHighestFitness(sorted[0].fitness);
 
-      // Check if population is thriving
       const averageFitness = withFitness.reduce((sum, agent) => sum + agent.fitness, 0) / withFitness.length;
       
       if (averageFitness < SURVIVAL_THRESHOLD) {
@@ -83,7 +85,6 @@ const EvolutionGame = () => {
 
       setSurvivedGenerations(g => g + 1);
 
-      // Create next generation
       const survivors = sorted.slice(0, Math.ceil(sorted.length * 0.5));
       const newGeneration = survivors.flatMap(parent => {
         const partner = survivors[Math.floor(Math.random() * survivors.length)];
@@ -122,7 +123,7 @@ const EvolutionGame = () => {
         <div className="grid grid-cols-2 gap-8 mb-8">
           <div className="bg-gray-900 p-6 rounded-lg border border-red-500/30">
             <div className="flex items-center gap-2 mb-4">
-              <Brain className="text-red-500" />
+              <span className="text-2xl">{icons.brain}</span>
               <h2 className="text-2xl font-semibold text-red-500">Stats</h2>
             </div>
             <div className="space-y-2">
@@ -135,7 +136,7 @@ const EvolutionGame = () => {
 
           <div className="bg-gray-900 p-6 rounded-lg border border-red-500/30">
             <div className="flex items-center gap-2 mb-4">
-              <Zap className="text-red-500" />
+              <span className="text-2xl">{icons.zap}</span>
               <h2 className="text-2xl font-semibold text-red-500">Controls</h2>
             </div>
             <input
@@ -154,7 +155,7 @@ const EvolutionGame = () => {
         {isGameOver && (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center">
             <div className="bg-gray-900 p-8 rounded-lg border border-red-500 text-center">
-              <AlertCircle className="text-red-500 w-16 h-16 mx-auto mb-4" />
+              <div className="text-4xl mb-4">{icons.alert}</div>
               <h2 className="text-3xl font-bold text-red-500 mb-4">Evolution Failed</h2>
               <p className="mb-4">Your AI species survived for {survivedGenerations} generations</p>
               <button
@@ -181,7 +182,9 @@ const EvolutionGame = () => {
             >
               <div className="text-2xl">{agent.symbol}</div>
               {agent.fitness === highestFitness && (
-                <Crown className="absolute -top-4 left-1/2 -translate-x-1/2 text-yellow-500 w-4 h-4" />
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 text-yellow-500 text-sm">
+                  {icons.crown}
+                </div>
               )}
             </div>
           ))}
