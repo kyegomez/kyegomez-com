@@ -1,15 +1,19 @@
-"use client";
+'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
 
 const WaterRipple = () => {
-  const canvasRef = useRef(null);
-  const [drops, setDrops] = useState([]);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [drops, setDrops] = useState<Array<{x: number; y: number; radius: number; opacity: number}>>([]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
+    
     const ctx = canvas.getContext('2d');
-    let animationFrameId;
+    if (!ctx) return;
+    
+    let animationFrameId: number;
     
     const animate = () => {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
@@ -36,8 +40,11 @@ const WaterRipple = () => {
     return () => cancelAnimationFrame(animationFrameId);
   }, [drops]);
 
-  const handleClick = (e) => {
-    const rect = canvasRef.current.getBoundingClientRect();
+  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    
+    const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     
@@ -95,7 +102,7 @@ const ASCIIArt = () => {
   );
 };
 
-const HomePage = () => {
+export default function HomePage() {
   return (
     <section className="max-w-4xl mx-auto p-4">
       <div className="text-center mb-12">
@@ -126,9 +133,6 @@ const HomePage = () => {
         in AI research or neural networks, check out my work on GitHub and YouTube, 
         where I share insights, projects, and tutorials.
       </p>
-
     </section>
   );
-};
-
-export default HomePage;
+}
