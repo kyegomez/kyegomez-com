@@ -14,10 +14,10 @@ export const metadata: Metadata = {
     default: 'Kye Gomez Home Page',
     template: '%s | Kye Gomez Home Page',
   },
-  description: 'This is my portfolio.',
+  description: 'Advancing Humanity through AI, NanoTechnology, and Biology.',
   openGraph: {
     title: 'Kye Gomez Portfolio',
-    description: 'This is my portfolio.',
+    description: 'Advancing Humanity through AI, NanoTechnology, and Biology.',
     url: baseUrl,
     siteName: 'Kye Gomez Portfolio',
     locale: 'en_US',
