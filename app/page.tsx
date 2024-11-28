@@ -1,125 +1,149 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 
-const WaterRipple = () => {
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [drops, setDrops] = useState<Array<{x: number; y: number; radius: number; opacity: number}>>([]);
+interface ASCIICreature {
+  id: number;
+  x: number;
+  y: number;
+  species: number;
+  energy: number;
+  dialogue: string;
+  emoji: string;
+}
 
+const GRID_WIDTH = 40;
+const GRID_HEIGHT = 15;
+const INITIAL_POPULATION = 10;
+
+const dialogues = [
+  "Hi friend!",
+  "Let's evolve!",
+  "Neural nets!",
+  "AI is fun!",
+  "Swarms rock!",
+  "Hello world!",
+  "Let's code!",
+  "Training...",
+  "Optimizing...",
+  "Learning..."
+];
+
+const emojis = ['ʕ•ᴥ•ʔ', '(•◡•)', '(っ◔◡◔)っ', 'ʕ￫ᴥ￩ʔ', '(^◡^)', '(・◇・)', 'ʕ•͡ᴥ•ʔ', '(◕‿◕)', '(｡♥‿♥｡)', 'ʕ•ᴥ•ʔ'];
+
+export default function Page() {
+  const [creatures, setCreatures] = useState<ASCIICreature[]>([]);
+  const [generation, setGeneration] = useState(0);
+
+  // Initialize population
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    
-    let animationFrameId: number;
-    
-    const animate = () => {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      
-      const updatedDrops = drops.map(drop => ({
-        ...drop,
-        radius: drop.radius + 2,
-        opacity: drop.opacity - 0.02
-      })).filter(drop => drop.opacity > 0);
-      
-      updatedDrops.forEach(drop => {
-        ctx.beginPath();
-        ctx.arc(drop.x, drop.y, drop.radius, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(64, 164, 223, ${drop.opacity})`;
-        ctx.stroke();
-      });
-      
-      setDrops(updatedDrops);
-      animationFrameId = requestAnimationFrame(animate);
-    };
-    
-    animate();
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [drops]);
+    const initial = Array.from({ length: INITIAL_POPULATION }, (_, i) => ({
+      id: i,
+      x: Math.floor(Math.random() * GRID_WIDTH),
+      y: Math.floor(Math.random() * GRID_HEIGHT),
+      species: Math.floor(Math.random() * emojis.length),
+      energy: 100,
+      dialogue: dialogues[Math.floor(Math.random() * dialogues.length)],
+      emoji: emojis[Math.floor(Math.random() * emojis.length)]
+    }));
+    setCreatures(initial);
+  }, []);
 
-  const handleClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    
-    const rect = canvas.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
-    
-    setDrops(prev => [...prev, {
-      x,
-      y,
-      radius: 0,
-      opacity: 0.8
-    }]);
-  };
-
-  return (
-    <canvas
-      ref={canvasRef}
-      width={800}
-      height={400}
-      onClick={handleClick}
-      className="w-full h-96 bg-blue-50 cursor-pointer rounded-lg mb-8"
-    />
-  );
-};
-
-const ASCIIArt = () => {
-  const [frame, setFrame] = useState(0);
-  const frames = [
-    `
-     /\\____/\\    
-    /  o  o  \\   Neural
-   ( ==  ^  == )  Networks
-    )         (   & AI
-   (           )  Research
-    |___|___|  
-    `,
-    `
-     /\\____/\\    
-    /  -  -  \\   Neural
-   ( ==  ^  == )  Networks
-    )         (   & AI
-   (           )  Research
-    |___|___|  
-    `
-  ];
-
+  // Update simulation
   useEffect(() => {
     const timer = setInterval(() => {
-      setFrame(prev => (prev + 1) % frames.length);
-    }, 1000);
+      setCreatures(prev => {
+        // Move creatures and update their state
+        const updated = prev.map(creature => {
+          // Random movement
+          const newX = (creature.x + Math.floor(Math.random() * 3) - 1 + GRID_WIDTH) % GRID_WIDTH;
+          const newY = (creature.y + Math.floor(Math.random() * 3) - 1 + GRID_HEIGHT) % GRID_HEIGHT;
+          
+          // Decrease energy
+          let newEnergy = creature.energy - 1;
+          
+          // Random chance to change dialogue
+          const newDialogue = Math.random() < 0.1 ? 
+            dialogues[Math.floor(Math.random() * dialogues.length)] : 
+            creature.dialogue;
+
+          return {
+            ...creature,
+            x: newX,
+            y: newY,
+            energy: newEnergy,
+            dialogue: newDialogue
+          };
+        });
+
+        // Reproduction
+        const newCreatures = [...updated];
+        updated.forEach(creature => {
+          if (creature.energy > 80 && Math.random() < 0.1) {
+            newCreatures.push({
+              id: Math.random(),
+              x: creature.x,
+              y: creature.y,
+              species: Math.random() < 0.9 ? creature.species : Math.floor(Math.random() * emojis.length),
+              energy: 100,
+              dialogue: dialogues[Math.floor(Math.random() * dialogues.length)],
+              emoji: Math.random() < 0.9 ? creature.emoji : emojis[Math.floor(Math.random() * emojis.length)]
+            });
+          }
+        });
+
+        // Remove low energy creatures
+        const survivors = newCreatures.filter(c => c.energy > 0);
+
+        // Keep population in check
+        const maxPop = 20;
+        if (survivors.length > maxPop) {
+          survivors.sort((a, b) => b.energy - a.energy);
+          survivors.length = maxPop;
+        }
+
+        setGeneration(g => g + 1);
+        return survivors;
+      });
+    }, 500);
+
     return () => clearInterval(timer);
   }, []);
 
   return (
-    <pre className="font-mono text-sm whitespace-pre overflow-x-auto mb-8 text-blue-600">
-      {frames[frame]}
-    </pre>
-  );
-};
-
-export default function HomePage() {
-  return (
     <section className="max-w-4xl mx-auto p-4">
-      <div className="text-center mb-12">
-        <ASCIIArt />
-      </div>
-      
       <h1 className="mb-8 text-4xl font-bold tracking-tighter bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
         Kye Gomez&apos;s Home Page
       </h1>
-      
-      <div className="mb-8 text-lg">
-        Click anywhere on the canvas below to create water ripples!
+
+      <div className="mb-4 text-lg">
+        Generation: {generation} | Population: {creatures.length}
       </div>
-      
-      <WaterRipple />
-      
-      <p className="mb-8 text-lg leading-relaxed">
+
+      <div className="font-mono bg-black text-white p-4 rounded-lg mb-8 overflow-hidden">
+        {Array.from({ length: GRID_HEIGHT }).map((_, y) => (
+          <div key={y} className="flex whitespace-pre">
+            {Array.from({ length: GRID_WIDTH }).map((_, x) => {
+              const creature = creatures.find(c => c.x === x && c.y === y);
+              return (
+                <span key={x} className="w-6 h-6 flex items-center justify-center">
+                  {creature ? creature.emoji : ' '}
+                </span>
+              );
+            })}
+          </div>
+        ))}
+      </div>
+
+      <div className="space-y-2">
+        {creatures.map(creature => (
+          <div key={creature.id} className="text-sm">
+            {creature.emoji}: {creature.dialogue} (Energy: {creature.energy})
+          </div>
+        ))}
+      </div>
+
+      <p className="mt-8 mb-8 text-lg leading-relaxed">
         Hello, I&apos;m Kye Gomez, and I build neural networks. 
         I&apos;ve been programming since I was 12 years old, and today, I lead Agora, 
         an open-source AI research lab non-profit with over 8,200 researchers worldwide. 
