@@ -1,17 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-
-interface Particle {
-  id: number;
-  x: number;
-  y: number;
-  symbol: string;
-  color: string;
-  size: number;
-  velocity: { x: number; y: number };
-  lifetime: number;
-}
+import React, { useState } from 'react';
 
 interface GalleryItem {
   title: string;
@@ -21,13 +10,6 @@ interface GalleryItem {
 
 export default function HomePage() {
   const [isDarkMode, setIsDarkMode] = useState(true);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const frameRef = useRef<number>(0);
-  const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
-  
-  const colors = isDarkMode 
-    ? ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD']
-    : ['#FF3333', '#2C7A73', '#1E5163', '#437C68', '#FFB302'];
 
   const galleryItems: GalleryItem[] = [
     {
@@ -61,25 +43,6 @@ export default function HomePage() {
       icon: "🌐"
     }
   ];
-
-
-  const updateContainerSize = useCallback(() => {
-    if (containerRef.current) {
-      setContainerSize({
-        width: containerRef.current.offsetWidth,
-        height: containerRef.current.offsetHeight
-      });
-    }
-  }, []);
-
-
-  useEffect(() => {
-    updateContainerSize();
-    window.addEventListener('resize', updateContainerSize);
-    return () => window.removeEventListener('resize', updateContainerSize);
-  }, [updateContainerSize]);
-
-  useEffect(() => {
 
   return (
     <div className={`min-h-screen relative overflow-hidden transition-colors duration-300 ${isDarkMode ? 'bg-black text-white' : 'bg-white text-black'}`}>
