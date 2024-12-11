@@ -169,8 +169,8 @@ export default function HomePage() {
           const forces = calculateForces(org, prev);
           
           // Update velocity based on forces and organism's agility
-          const newVelX = (org.velocity.x + forces.x * org.genome.agility) * 0.99;
-          const newVelY = (org.velocity.y + forces.y * org.genome.agility) * 0.99;
+          let newVelX = (org.velocity.x + forces.x * org.genome.agility) * 0.99;
+          let newVelY = (org.velocity.y + forces.y * org.genome.agility) * 0.99;
 
           // Update position
           let newX = org.x + newVelX;
