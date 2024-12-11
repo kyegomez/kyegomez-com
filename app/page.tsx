@@ -16,13 +16,16 @@ interface Organism {
 export default function HomePage() {
   const [organisms, setOrganisms] = useState<Organism[]>([]);
   const [generation, setGeneration] = useState(0);
+  const [isDarkMode, setIsDarkMode] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const frameRef = useRef<number>(0);
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
 
-  // Updated color scheme for better mobile contrast
   const symbols = '◈◇◆⬡⬢△▲○●⎔⬣⬤⬦⬥∆∇□■'.split('');
-  const colors = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD'];
+  // Colors adjusted for both dark and light modes
+  const colors = isDarkMode 
+    ? ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD']
+    : ['#FF3333', '#2C7A73', '#1E5163', '#437C68', '#FFB302'];
 
   const updateContainerSize = useCallback(() => {
     if (containerRef.current) {
@@ -45,27 +48,25 @@ export default function HomePage() {
     y,
     symbol: symbols[Math.floor(Math.random() * symbols.length)],
     color: colors[Math.floor(Math.random() * colors.length)],
-    size: Math.random() * 1.2 + 0.8, // Adjusted size range for better mobile visibility
+    size: Math.random() * 1.2 + 0.8,
     velocity: {
-      x: (Math.random() - 0.5) * 3, // Increased velocity for more dynamic movement
+      x: (Math.random() - 0.5) * 3,
       y: (Math.random() - 0.5) * 3
     },
     lifetime: 0
-  }), []);
+  }), [colors]);
 
   const handleInteraction = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     const rect = containerRef.current?.getBoundingClientRect();
     if (!rect) return;
 
-    // Handle both mouse and touch events
     const clientX = 'touches' in e ? e.touches[0].clientX : (e as React.MouseEvent).clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : (e as React.MouseEvent).clientY;
 
     const x = clientX - rect.left;
     const y = clientY - rect.top;
 
-    // Spawn more organisms on mobile
     const spawnCount = window.innerWidth < 768 ? 5 : 3;
 
     setOrganisms(prev => [
@@ -79,7 +80,6 @@ export default function HomePage() {
     setOrganisms(prev => {
       const updated = prev
         .map(org => {
-          // Bounce off edges
           let newX = org.x + org.velocity.x;
           let newY = org.y + org.velocity.y;
           let velX = org.velocity.x;
@@ -99,24 +99,14 @@ export default function HomePage() {
             }
           };
         })
-        .filter(org => org.lifetime < 300); // Increased lifetime
+        .filter(org => org.lifetime < 300);
 
-      const newOrganisms: Organism[] = [];
-      
-      // Increased reproduction rate
-      updated.forEach(org => {
-        if (Math.random() < 0.02) { // Doubled reproduction chance
-          newOrganisms.push(createOrganism(org.x, org.y));
-        }
-      });
-
-      const maxOrganisms = window.innerWidth < 768 ? 75 : 150; // Adjusted for mobile
-      const combined = [...updated, ...newOrganisms];
-      return combined.slice(-maxOrganisms);
+      const maxOrganisms = window.innerWidth < 768 ? 75 : 150;
+      return updated.slice(-maxOrganisms);
     });
 
     frameRef.current = requestAnimationFrame(updateOrganisms);
-  }, [createOrganism, containerSize]);
+  }, [containerSize]);
 
   useEffect(() => {
     frameRef.current = requestAnimationFrame(updateOrganisms);
@@ -139,7 +129,19 @@ export default function HomePage() {
   }, [createOrganism, containerSize]);
 
   return (
-    <div className="min-h-screen bg-black text-white relative overflow-hidden">
+    <div className={`min-h-screen relative overflow-hidden transition-colors duration-300 ${isDarkMode ? 'bg-black text-white' : 'bg-white text-black'}`}>
+      {/* Theme Toggle Button */}
+      <button
+        onClick={() => setIsDarkMode(!isDarkMode)}
+        className={`fixed top-4 right-4 z-20 px-4 py-2 rounded-full transition-colors duration-300 ${
+          isDarkMode 
+            ? 'bg-white text-black hover:bg-gray-200' 
+            : 'bg-black text-white hover:bg-gray-800'
+        }`}
+      >
+        {isDarkMode ? '☀️ Light' : '🌙 Dark'}
+      </button>
+
       {/* Background Evolution Layer */}
       <div
         ref={containerRef}
@@ -171,17 +173,23 @@ export default function HomePage() {
         onTouchStart={handleInteraction}
       >
         <div className="max-w-4xl mx-auto p-4 sm:p-8">
-          <h1 className="text-4xl sm:text-6xl font-bold mb-6 sm:mb-8 text-red-400 tracking-tight">
+          <h1 className={`text-4xl sm:text-6xl font-bold mb-6 sm:mb-8 ${isDarkMode ? 'text-red-400' : 'text-red-600'} tracking-tight`}>
             Kye Gomez
           </h1>
 
-          <div className="prose prose-invert max-w-none">
+          <div className="prose max-w-none" className={isDarkMode ? 'prose-invert' : 'prose'}>
             <p className="text-lg sm:text-xl mb-6">
               Neural architect crafting tomorrow's intelligence. Tap anywhere to spawn new AI agents...
             </p>
 
-            <div className="bg-black/50 p-4 sm:p-6 rounded-lg border border-red-400/30 mb-6 sm:mb-8">
-              <h2 className="text-xl sm:text-2xl font-semibold text-red-400 mb-3">Background Evolution</h2>
+            <div className={`p-4 sm:p-6 rounded-lg border mb-6 sm:mb-8 transition-colors duration-300 ${
+              isDarkMode 
+                ? 'bg-black/50 border-red-400/30' 
+                : 'bg-white/50 border-red-600/30'
+            }`}>
+              <h2 className={`text-xl sm:text-2xl font-semibold mb-3 ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>
+                Background Evolution
+              </h2>
               <p className="text-sm sm:text-base">Tap anywhere to spawn new agents!</p>
               <ul className="list-none space-y-1 mt-3 text-sm sm:text-base">
                 <li>• Active Agents: {organisms.length}</li>
@@ -191,7 +199,9 @@ export default function HomePage() {
             </div>
 
             <section className="mb-8 sm:mb-12">
-              <h2 className="text-xl sm:text-2xl font-semibold text-red-400 mb-3 sm:mb-4">About Me</h2>
+              <h2 className={`text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>
+                About Me
+              </h2>
               <p className="mb-3 text-sm sm:text-base">
                 I've been programming since I was 12 years old, and today, I lead Agora, 
                 an open-source AI research lab non-profit with over 8,200 researchers worldwide.
@@ -203,7 +213,9 @@ export default function HomePage() {
             </section>
 
             <section className="mb-8 sm:mb-12">
-              <h2 className="text-xl sm:text-2xl font-semibold text-red-400 mb-3 sm:mb-4">Current Projects</h2>
+              <h2 className={`text-xl sm:text-2xl font-semibold mb-3 sm:mb-4 ${isDarkMode ? 'text-red-400' : 'text-red-600'}`}>
+                Current Projects
+              </h2>
               <p className="text-sm sm:text-base">
                 I'm working on Swarms, a framework for orchestrating millions of agents 
                 to automate recurring enterprise operations. If you're interested in AI 
