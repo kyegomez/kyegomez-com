@@ -2,15 +2,25 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 
+interface Genome {
+  speed: number;
+  size: number;
+  agility: number;
+  lifespan: number;
+  socialDistance: number;
+  symbolIndex: number;
+}
+
 interface Organism {
   id: number;
   x: number;
   y: number;
+  genome: Genome;
   symbol: string;
   color: string;
-  size: number;
   velocity: { x: number; y: number };
-  lifetime: number;
+  energy: number;
+  age: number;
 }
 
 export default function HomePage() {
@@ -22,10 +32,57 @@ export default function HomePage() {
   const [containerSize, setContainerSize] = useState({ width: 0, height: 0 });
 
   const symbols = '◈◇◆⬡⬢△▲○●⎔⬣⬤⬦⬥∆∇□■'.split('');
-  // Colors adjusted for both dark and light modes
   const colors = isDarkMode 
     ? ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD']
     : ['#FF3333', '#2C7A73', '#1E5163', '#437C68', '#FFB302'];
+
+  // Create a random genome with mutations
+  const createGenome = useCallback((parentGenome?: Genome): Genome => {
+    const baseGenome = parentGenome || {
+      speed: Math.random() * 2 + 1,
+      size: Math.random() * 1 + 0.5,
+      agility: Math.random() * 0.8 + 0.2,
+      lifespan: Math.random() * 400 + 200,
+      socialDistance: Math.random() * 100 + 50,
+      symbolIndex: Math.floor(Math.random() * symbols.length)
+    };
+
+    if (!parentGenome) return baseGenome;
+
+    // Apply mutations with 20% chance for each trait
+    const mutated = { ...baseGenome };
+    Object.keys(mutated).forEach(key => {
+      if (Math.random() < 0.2) {
+        const trait = key as keyof Genome;
+        if (trait === 'symbolIndex') {
+          mutated[trait] = Math.floor(Math.random() * symbols.length);
+        } else {
+          mutated[trait] = baseGenome[trait] * (0.8 + Math.random() * 0.4);
+        }
+      }
+    });
+
+    return mutated;
+  }, []);
+
+  // Create a new organism with optional parent genome
+  const createOrganism = useCallback((x: number, y: number, parentGenome?: Genome): Organism => {
+    const genome = createGenome(parentGenome);
+    return {
+      id: Math.random(),
+      x,
+      y,
+      genome,
+      symbol: symbols[genome.symbolIndex],
+      color: colors[Math.floor(Math.random() * colors.length)],
+      velocity: {
+        x: (Math.random() - 0.5) * genome.speed,
+        y: (Math.random() - 0.5) * genome.speed
+      },
+      energy: 100,
+      age: 0
+    };
+  }, [colors, createGenome]);
 
   const updateContainerSize = useCallback(() => {
     if (containerRef.current) {
@@ -42,20 +99,40 @@ export default function HomePage() {
     return () => window.removeEventListener('resize', updateContainerSize);
   }, [updateContainerSize]);
 
-  const createOrganism = useCallback((x: number, y: number): Organism => ({
-    id: Math.random(),
-    x,
-    y,
-    symbol: symbols[Math.floor(Math.random() * symbols.length)],
-    color: colors[Math.floor(Math.random() * colors.length)],
-    size: Math.random() * 1.2 + 0.8,
-    velocity: {
-      x: (Math.random() - 0.5) * 3,
-      y: (Math.random() - 0.5) * 3
-    },
-    lifetime: 0
-  }), [colors]);
+  // Calculate forces between organisms
+  const calculateForces = useCallback((org: Organism, others: Organism[]) => {
+    let forceX = 0;
+    let forceY = 0;
 
+    others.forEach(other => {
+      if (other.id === org.id) return;
+
+      const dx = other.x - org.x;
+      const dy = other.y - org.y;
+      const distance = Math.sqrt(dx * dx + dy * dy);
+
+      if (distance < org.genome.socialDistance) {
+        // Repulsion force when too close
+        const repulsionStrength = (org.genome.socialDistance - distance) / org.genome.socialDistance;
+        forceX -= (dx / distance) * repulsionStrength;
+        forceY -= (dy / distance) * repulsionStrength;
+      }
+    });
+
+    // Add slight attraction to center to keep organisms in view
+    const centerX = containerSize.width / 2;
+    const centerY = containerSize.height / 2;
+    const centerDx = centerX - org.x;
+    const centerDy = centerY - org.y;
+    const centerDistance = Math.sqrt(centerDx * centerDx + centerDy * centerDy);
+    
+    forceX += (centerDx / centerDistance) * 0.1;
+    forceY += (centerDy / centerDistance) * 0.1;
+
+    return { x: forceX, y: forceY };
+  }, [containerSize]);
+
+  // Handle clicks/touches to spawn new organisms
   const handleInteraction = useCallback((e: React.MouseEvent | React.TouchEvent) => {
     e.preventDefault();
     const rect = containerRef.current?.getBoundingClientRect();
@@ -69,44 +146,64 @@ export default function HomePage() {
 
     const spawnCount = window.innerWidth < 768 ? 5 : 3;
 
-    setOrganisms(prev => [
-      ...prev,
-      ...Array(spawnCount).fill(null).map(() => createOrganism(x, y))
-    ]);
+    setOrganisms(prev => {
+      // If there are existing organisms, use their genomes as templates
+      const newOrganisms = Array(spawnCount).fill(null).map(() => {
+        if (prev.length > 0) {
+          const parent = prev[Math.floor(Math.random() * prev.length)];
+          return createOrganism(x, y, parent.genome);
+        }
+        return createOrganism(x, y);
+      });
+      return [...prev, ...newOrganisms];
+    });
     setGeneration(g => g + 1);
   }, [createOrganism]);
 
+  // Update simulation state
   const updateOrganisms = useCallback(() => {
     setOrganisms(prev => {
       const updated = prev
         .map(org => {
-          let newX = org.x + org.velocity.x;
-          let newY = org.y + org.velocity.y;
-          let velX = org.velocity.x;
-          let velY = org.velocity.y;
+          // Calculate forces from other organisms
+          const forces = calculateForces(org, prev);
+          
+          // Update velocity based on forces and organism's agility
+          const newVelX = (org.velocity.x + forces.x * org.genome.agility) * 0.99;
+          const newVelY = (org.velocity.y + forces.y * org.genome.agility) * 0.99;
 
-          if (newX < 0 || newX > containerSize.width) velX *= -0.8;
-          if (newY < 0 || newY > containerSize.height) velY *= -0.8;
+          // Update position
+          let newX = org.x + newVelX;
+          let newY = org.y + newVelY;
 
+          // Bounce off boundaries
+          if (newX < 0 || newX > containerSize.width) {
+            newX = Math.max(0, Math.min(containerSize.width, newX));
+            newVelX *= -0.8;
+          }
+          if (newY < 0 || newY > containerSize.height) {
+            newY = Math.max(0, Math.min(containerSize.height, newY));
+            newVelY *= -0.8;
+          }
+
+          // Update organism state
           return {
             ...org,
-            x: Math.max(0, Math.min(containerSize.width, newX)),
-            y: Math.max(0, Math.min(containerSize.height, newY)),
-            lifetime: org.lifetime + 1,
-            velocity: {
-              x: velX * 0.99,
-              y: velY * 0.99
-            }
+            x: newX,
+            y: newY,
+            velocity: { x: newVelX, y: newVelY },
+            energy: org.energy - (Math.abs(newVelX) + Math.abs(newVelY)) * 0.1,
+            age: org.age + 1
           };
         })
-        .filter(org => org.lifetime < 300);
+        .filter(org => org.age < org.genome.lifespan && org.energy > 0);
 
       const maxOrganisms = window.innerWidth < 768 ? 75 : 150;
       return updated.slice(-maxOrganisms);
     });
 
     frameRef.current = requestAnimationFrame(updateOrganisms);
-  }, [containerSize]);
+  }, [calculateForces, containerSize]);
 
   useEffect(() => {
     frameRef.current = requestAnimationFrame(updateOrganisms);
@@ -156,8 +253,8 @@ export default function HomePage() {
               left: `${org.x}px`,
               top: `${org.y}px`,
               color: org.color,
-              transform: `scale(${org.size})`,
-              opacity: Math.max(0, 1 - org.lifetime / 300),
+              transform: `scale(${org.genome.size})`,
+              opacity: Math.max(0, 1 - org.age / org.genome.lifespan),
               fontSize: window.innerWidth < 768 ? '1.25rem' : '1.5rem',
             }}
           >
