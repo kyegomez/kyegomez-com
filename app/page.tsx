@@ -139,7 +139,7 @@ export default function HomePage() {
   }, [createOrganism, containerSize]);
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white relative overflow-hidden">
+    <div className="min-h-screen bg-black text-white relative overflow-hidden">
       {/* Background Evolution Layer */}
       <div
         ref={containerRef}
@@ -180,7 +180,7 @@ export default function HomePage() {
               Neural architect crafting tomorrow's intelligence. Tap anywhere to spawn new AI agents...
             </p>
 
-            <div className="bg-gray-800/70 p-4 sm:p-6 rounded-lg border border-red-400/30 mb-6 sm:mb-8">
+            <div className="bg-black/50 p-4 sm:p-6 rounded-lg border border-red-400/30 mb-6 sm:mb-8">
               <h2 className="text-xl sm:text-2xl font-semibold text-red-400 mb-3">Background Evolution</h2>
               <p className="text-sm sm:text-base">Tap anywhere to spawn new agents!</p>
               <ul className="list-none space-y-1 mt-3 text-sm sm:text-base">
