@@ -177,7 +177,7 @@ export default function HomePage() {
             Kye Gomez
           </h1>
 
-          <div className="prose max-w-none" className={isDarkMode ? 'prose-invert' : 'prose'}>
+          <div className={`prose max-w-none ${isDarkMode ? 'prose-invert' : 'prose'}`}>
             <p className="text-lg sm:text-xl mb-6">
               Neural architect crafting tomorrow's intelligence. Tap anywhere to spawn new AI agents...
             </p>
