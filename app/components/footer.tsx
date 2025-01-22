@@ -43,7 +43,7 @@ export default function Footer() {
         <CategorySection title="Connect">
           <LinkButton href="https://github.com/kyegomez" text="GitHub" />
           <LinkButton href="https://x.com/KyeGomezB" text="Twitter/X" />
-          <LinkButton href="https://discord.gg/agora-999382051935506503" text="Discord" />
+          <LinkButton href="https://discord.gg/jM3Z6M9uMq" text="Discord" />
           <LinkButton href="https://www.youtube.com/@kyegomez3242" text="YouTube" />
           <LinkButton href="https://www.instagram.com/kye_gomez/" text="Instagram" />
           <LinkButton href="https://www.linkedin.com/in/kye-g-38759a207/" text="Linkedin" />
@@ -61,7 +61,6 @@ export default function Footer() {
         
         <CategorySection title="Contact">
           <LinkButton href="mailto:kye@kyegomez.com" text="Email" />
-          <LinkButton href="tel:+17866955339" text="786-695-5339" />
           <LinkButton href="https://cal.com/swarms" text="Book a Meeting" />
         </CategorySection>
         
