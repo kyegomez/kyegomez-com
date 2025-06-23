@@ -96,19 +96,21 @@ export default function RepositoriesPage() {
 
   if (loading) {
     return (
-      <div className="terminal-window">
-        <div className="terminal-header">
-          <div className="terminal-buttons">
-            <span className="terminal-button red"></span>
-            <span className="terminal-button yellow"></span>
-            <span className="terminal-button green"></span>
+      <div className="flex justify-center items-start pt-2 sm:pt-4">
+        <div className="terminal-window max-w-6xl">
+          <div className="terminal-header">
+            <div className="terminal-buttons">
+              <span className="terminal-button red"></span>
+              <span className="terminal-button yellow"></span>
+              <span className="terminal-button green"></span>
+            </div>
+            <div className="terminal-title-text">
+              GitHub Repository Database
+            </div>
           </div>
-          <div className="terminal-title-text">
-            GitHub Repository Database
+          <div className="terminal-body-text">
+            <p className="cyber-p">Loading repositories...</p>
           </div>
-        </div>
-        <div className="terminal-body-text">
-          <p className="cyber-p">Loading repositories...</p>
         </div>
       </div>
     );
@@ -116,7 +118,29 @@ export default function RepositoriesPage() {
 
   if (error) {
     return (
-      <div className="terminal-window">
+      <div className="flex justify-center items-start pt-2 sm:pt-4">
+        <div className="terminal-window max-w-6xl">
+          <div className="terminal-header">
+            <div className="terminal-buttons">
+              <span className="terminal-button red"></span>
+              <span className="terminal-button yellow"></span>
+              <span className="terminal-button green"></span>
+            </div>
+            <div className="terminal-title-text">
+              GitHub Repository Database
+            </div>
+          </div>
+          <div className="terminal-body-text">
+            <p className="cyber-p">Error: {error}</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex justify-center items-start pt-2 sm:pt-4">
+      <div className="terminal-window max-w-6xl">
         <div className="terminal-header">
           <div className="terminal-buttons">
             <span className="terminal-button red"></span>
@@ -128,109 +152,106 @@ export default function RepositoriesPage() {
           </div>
         </div>
         <div className="terminal-body-text">
-          <p className="cyber-p">Error: {error}</p>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <div className="terminal-window">
-      <div className="terminal-header">
-        <div className="terminal-buttons">
-          <span className="terminal-button red"></span>
-          <span className="terminal-button yellow"></span>
-          <span className="terminal-button green"></span>
-        </div>
-        <div className="terminal-title-text">
-          GitHub Repository Database
-        </div>
-      </div>
-      <div className="terminal-body-text">
-        <h1 className="cyber-h1">[kyegomez@kyegomez-os ~]$ ls -l repositories</h1>
-        
-        {/* Search and Filters */}
-        <div className="repo-controls">
-          <div className="search-box">
-            <input
-              type="text"
-              placeholder="Search repositories..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="cyber-input"
-            />
-          </div>
+          <h1 className="cyber-h1">[kyegomez@kyegomez-os ~]$ ls -l repositories</h1>
           
-          <div className="filter-controls">
-            <select
-              value={languageFilter}
-              onChange={(e) => setLanguageFilter(e.target.value)}
-              className="cyber-select"
-            >
-              <option value="">All Languages</option>
-              {languages.map(lang => (
-                <option key={lang} value={lang}>{lang}</option>
-              ))}
-            </select>
+          {/* Search and Filters */}
+          <div className="repo-controls">
+            <div className="search-box">
+              <input
+                type="text"
+                placeholder="Search repositories..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="cyber-input"
+              />
+            </div>
             
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as 'updated' | 'stars' | 'name')}
-              className="cyber-select"
-            >
-              <option value="updated">Sort by Updated</option>
-              <option value="stars">Sort by Stars</option>
-              <option value="name">Sort by Name</option>
-            </select>
+            <div className="filter-controls">
+              <select
+                value={languageFilter}
+                onChange={(e) => setLanguageFilter(e.target.value)}
+                className="cyber-select"
+              >
+                <option value="">All Languages</option>
+                {languages.map(lang => (
+                  <option key={lang} value={lang}>{lang}</option>
+                ))}
+              </select>
+              
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as 'updated' | 'stars' | 'name')}
+                className="cyber-select"
+              >
+                <option value="updated">Sort by Updated</option>
+                <option value="stars">Sort by Stars</option>
+                <option value="name">Sort by Name</option>
+              </select>
+            </div>
           </div>
-        </div>
 
-        <p className="cyber-p">
-          Showing {paginatedRepos.length} of {filteredAndSortedRepos.length} repositories 
-          {searchTerm && ` matching "${searchTerm}"`}
-          {languageFilter && ` in ${languageFilter}`}
-        </p>
+          <p className="cyber-p">
+            Showing {paginatedRepos.length} of {filteredAndSortedRepos.length} repositories 
+            {searchTerm && ` matching "${searchTerm}"`}
+            {languageFilter && ` in ${languageFilter}`}
+          </p>
 
-        {/* Repository List */}
-        <div className="repo-list">
-          {paginatedRepos.map((repo) => (
-            <a href={repo.html_url} key={repo.id} target="_blank" rel="noopener noreferrer" className="cyber-card repo-card">
-              <h2 className="repo-name">{repo.name}</h2>
-              <p className="repo-description">{repo.description || 'No description provided.'}</p>
-              <div className="repo-stats">
-                <span>⭐ {repo.stargazers_count}</span>
-                <span>🍴 {repo.forks_count}</span>
-                {repo.language && <span>💻 {repo.language}</span>}
-                <span>Updated: {new Date(repo.updated_at).toLocaleDateString()}</span>
+          {/* Repository List */}
+          <div className="repo-list">
+            {paginatedRepos.map((repo) => (
+              <div key={repo.id} className="cyber-card repo-card">
+                <div>
+                  <a href={repo.html_url} target="_blank" rel="noopener noreferrer">
+                    <h2 className="repo-name hover:text-red-500 transition-colors">{repo.name}</h2>
+                  </a>
+                  <p className="repo-description">{repo.description || 'No description provided.'}</p>
+                </div>
+                <div className="repo-stats">
+                  <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" /></svg>
+                    {repo.stargazers_count}
+                  </span>
+                  <span>
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" /></svg>
+                    {repo.forks_count}
+                  </span>
+                  {repo.language && (
+                    <span>
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M12.316 3.051a1 1 0 01.633 1.265l-4 12a1 1 0 11-1.898-.632l4-12a1 1 0 011.265-.633zM5.707 6.293a1 1 0 010 1.414L3.414 10l2.293 2.293a1 1 0 11-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clipRule="evenodd" /></svg>
+                      {repo.language}
+                    </span>
+                  )}
+                  <span>Updated: {new Date(repo.updated_at).toLocaleDateString()}</span>
+                </div>
               </div>
-            </a>
-          ))}
-        </div>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="pagination">
-            <button
-              onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
-              className="cyber-button"
-            >
-              Previous
-            </button>
-            
-            <span className="page-info">
-              Page {currentPage} of {totalPages}
-            </span>
-            
-            <button
-              onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages}
-              className="cyber-button"
-            >
-              Next
-            </button>
+            ))}
           </div>
-        )}
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="pagination">
+              <button
+                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                disabled={currentPage === 1}
+                className="cyber-button"
+              >
+                Previous
+              </button>
+              
+              <span className="page-info">
+                Page {currentPage} of {totalPages}
+              </span>
+              
+              <button
+                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                disabled={currentPage === totalPages}
+                className="cyber-button"
+              >
+                Next
+              </button>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
