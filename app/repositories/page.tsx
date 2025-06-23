@@ -205,6 +205,7 @@ export default function RepositoriesPage() {
                     <h2 className="repo-name hover:text-red-500 transition-colors">{repo.name}</h2>
                   </a>
                   <p className="repo-description">{repo.description || 'No description provided.'}</p>
+                  <a href={repo.html_url} target="_blank" rel="noopener noreferrer" className="cyber-button mt-2 inline-block text-xs px-3 py-1">View on GitHub</a>
                 </div>
                 <div className="repo-stats">
                   <span>

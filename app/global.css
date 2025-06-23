@@ -193,6 +193,8 @@ p {
   background: linear-gradient(45deg, transparent, rgba(255, 0, 64, 0.1), transparent);
   opacity: 0;
   transition: opacity 0.3s ease;
+  pointer-events: none;
+  user-select: none;
 }
 
 .cyber-card:hover {
@@ -792,4 +794,20 @@ p {
   .repo-controls {
     padding: 0.75rem;
   }
+}
+
+.loading-bar {
+  background: linear-gradient(90deg, var(--neon-red), var(--pure-white), var(--neon-red));
+  opacity: 0.8;
+  width: 50%;
+  border-radius: 4px;
+}
+
+@keyframes loading-bar-shimmer {
+  0% { left: -50%; }
+  100% { left: 100%; }
+}
+
+.animate-loading-bar {
+  animation: loading-bar-shimmer 2s linear infinite;
 }
