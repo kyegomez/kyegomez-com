@@ -23,15 +23,16 @@ const shareTechMono = Share_Tech_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: 'KYE_GOMEZ.exe - Cyberpunk Terminal',
-    template: '%s | KYE_GOMEZ.exe',
+    default: 'Kye Gomez | Founder of swarms.ai & agoralab.ai | Open Source AI Researcher',
+    template: '%s | Kye Gomez',
   },
-  description: 'Advancing Humanity through AI, NanoTechnology, and Biology. Welcome to the future.',
+  description: 'Kye Gomez is the founder of swarms.ai and agoralab.ai, and an open source AI researcher dedicated to advancing humanity through technology.',
+  keywords: ['Kye Gomez', 'swarms.ai', 'agoralab.ai', 'open source', 'AI researcher', 'artificial intelligence', 'U/acc', 'swarms'],
   openGraph: {
-    title: 'KYE_GOMEZ.exe - Cyberpunk Terminal',
-    description: 'Advancing Humanity through AI, NanoTechnology, and Biology. Welcome to the future.',
+    title: 'Kye Gomez | Founder of swarms.ai & agoralab.ai',
+    description: 'Kye Gomez is the founder of swarms.ai and agoralab.ai, and an open source AI researcher.',
     url: baseUrl,
-    siteName: 'KYE_GOMEZ.exe',
+    siteName: 'Kye Gomez',
     locale: 'en_US',
     type: 'website',
   },
