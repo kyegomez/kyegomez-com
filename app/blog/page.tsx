@@ -1,16 +1,11 @@
 import { BlogPosts } from 'app/components/posts'
-import { getBlogPosts } from 'app/blog/utils'
-import { Link } from 'next-view-transitions'
 
 export const metadata = {
-  title: 'Blog | Kye Gomez',
-  description: 'Read my thoughts on AI, economics, and building the future. Articles from Kye Gomez, founder of swarms.ai and agoralab.ai.',
-  keywords: ['Kye Gomez', 'blog', 'AI', 'swarms.ai', 'agoralab.ai', 'open source', 'researcher', 'economics'],
+  title: 'Blog - KYE_GOMEZ.exe',
+  description: 'Read my blog posts about AI, technology, and innovation.',
 }
 
-export default function BlogPage() {
-  let allBlogs = getBlogPosts()
-
+export default function Page() {
   return (
     <div className="flex justify-center items-start pt-2 sm:pt-4">
       <div className="terminal-window max-w-6xl">

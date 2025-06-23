@@ -27,17 +27,11 @@ export function generateMetadata({ params }) {
     ? image
     : `${baseUrl}/og?title=${encodeURIComponent(title)}`
 
-  // Generate keywords from title and add default keywords
-  const defaultKeywords = ['Kye Gomez', 'swarms.ai', 'agoralab.ai', 'open source', 'AI researcher', 'artificial intelligence'];
-  const titleKeywords = title.split(' ').map(word => word.toLowerCase().replace(/[^a-z0-9]/gi, '')).filter(Boolean);
-  const keywords = [...new Set([...defaultKeywords, ...titleKeywords])];
-
   return {
-    title,
+    title: `${title} - KYE_GOMEZ.exe`,
     description,
-    keywords,
     openGraph: {
-      title,
+      title: `${title} - KYE_GOMEZ.exe`,
       description,
       type: 'article',
       publishedTime,
@@ -47,11 +41,10 @@ export function generateMetadata({ params }) {
           url: ogImage,
         },
       ],
-      authors: ['Kye Gomez'],
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: `${title} - KYE_GOMEZ.exe`,
       description,
       images: [ogImage],
     },
@@ -65,32 +58,6 @@ export default function Blog({ params }) {
     notFound()
   }
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'BlogPosting',
-    headline: post.metadata.title,
-    datePublished: post.metadata.publishedAt,
-    dateModified: post.metadata.publishedAt,
-    description: post.metadata.summary,
-    image: post.metadata.image
-      ? `${baseUrl}${post.metadata.image}`
-      : `/og?title=${encodeURIComponent(post.metadata.title)}`,
-    url: `${baseUrl}/blog/${post.slug}`,
-    author: {
-      '@type': 'Person',
-      name: 'Kye Gomez',
-      url: baseUrl,
-    },
-    publisher: {
-      '@type': 'Organization',
-      name: 'Kye Gomez',
-      logo: {
-        '@type': 'ImageObject',
-        url: `${baseUrl}/logo.png`, // Assuming you have a logo file
-      },
-    },
-  };
-
   return (
     <div className="flex justify-center items-start pt-2 sm:pt-4">
       <div className="terminal-window max-w-6xl">
@@ -102,7 +69,22 @@ export default function Blog({ params }) {
             type="application/ld+json"
             suppressHydrationWarning
             dangerouslySetInnerHTML={{
-              __html: JSON.stringify(jsonLd),
+              __html: JSON.stringify({
+                '@context': 'https://schema.org',
+                '@type': 'BlogPosting',
+                headline: post.metadata.title,
+                datePublished: post.metadata.publishedAt,
+                dateModified: post.metadata.publishedAt,
+                description: post.metadata.summary,
+                image: post.metadata.image
+                  ? `${baseUrl}${post.metadata.image}`
+                  : `/og?title=${encodeURIComponent(post.metadata.title)}`,
+                url: `${baseUrl}/blog/${post.slug}`,
+                author: {
+                  '@type': 'Person',
+                  name: 'Kye Gomez',
+                },
+              }),
             }}
           />
           

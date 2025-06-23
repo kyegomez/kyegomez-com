@@ -8,6 +8,10 @@ const navItems = {
   '/blog': {
     name: 'BLOG',
     icon: '📝'
+  },
+  '/repositories': {
+    name: 'REPOSITORIES',
+    icon: '📂'
   }
 }
 
