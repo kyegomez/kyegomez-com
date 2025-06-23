@@ -2,36 +2,41 @@ import Link from 'next/link'
 
 const navItems = {
   '/': {
-    name: 'home',
+    name: 'HOME',
+    icon: '⚡'
   },
   '/blog': {
-    name: 'blog',
+    name: 'BLOG',
+    icon: '📝'
   }
 }
 
 export function Navbar() {
   return (
-    <aside className="-ml-[8px] mb-16 tracking-tight">
-      <div className="lg:sticky lg:top-20">
-        <nav
-          className="flex flex-row items-start relative px-0 pb-0 fade md:overflow-auto scroll-pr-6 md:relative"
-          id="nav"
-        >
-          <div className="flex flex-row space-x-0 pr-10">
-            {Object.entries(navItems).map(([path, { name }]) => {
+    <nav className="cyber-nav">
+      <div className="container-responsive">
+        <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
+          <div className="flex items-center space-x-2">
+            <span className="neon-text-red text-lg sm:text-xl font-bold">KYE_GOMEZ.exe</span>
+            <div className="loading"></div>
+          </div>
+          
+          <div className="flex space-x-1">
+            {Object.entries(navItems).map(([path, { name, icon }]) => {
               return (
                 <Link
                   key={path}
                   href={path}
-                  className="transition-all hover:text-neutral-800 dark:hover:text-neutral-200 flex align-middle relative py-1 px-2 m-1"
+                  className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-1 sm:py-2 rounded transition-all duration-300 hover:scale-105 text-xs sm:text-sm"
                 >
-                  {name}
+                  <span className="text-sm sm:text-lg">{icon}</span>
+                  <span className="font-bold hidden sm:inline">{name}</span>
                 </Link>
               )
             })}
           </div>
-        </nav>
+        </div>
       </div>
-    </aside>
+    </nav>
   )
 }

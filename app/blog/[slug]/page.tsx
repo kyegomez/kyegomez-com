@@ -28,10 +28,10 @@ export function generateMetadata({ params }) {
     : `${baseUrl}/og?title=${encodeURIComponent(title)}`
 
   return {
-    title,
+    title: `${title} - KYE_GOMEZ.exe`,
     description,
     openGraph: {
-      title,
+      title: `${title} - KYE_GOMEZ.exe`,
       description,
       type: 'article',
       publishedTime,
@@ -44,7 +44,7 @@ export function generateMetadata({ params }) {
     },
     twitter: {
       card: 'summary_large_image',
-      title,
+      title: `${title} - KYE_GOMEZ.exe`,
       description,
       images: [ogImage],
     },
@@ -59,40 +59,62 @@ export default function Blog({ params }) {
   }
 
   return (
-    <section>
-      <script
-        type="application/ld+json"
-        suppressHydrationWarning
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'BlogPosting',
-            headline: post.metadata.title,
-            datePublished: post.metadata.publishedAt,
-            dateModified: post.metadata.publishedAt,
-            description: post.metadata.summary,
-            image: post.metadata.image
-              ? `${baseUrl}${post.metadata.image}`
-              : `/og?title=${encodeURIComponent(post.metadata.title)}`,
-            url: `${baseUrl}/blog/${post.slug}`,
-            author: {
-              '@type': 'Person',
-              name: 'My Portfolio',
-            },
-          }),
-        }}
-      />
-      <h1 className="title font-semibold text-2xl tracking-tighter">
-        {post.metadata.title}
-      </h1>
-      <div className="flex justify-between items-center mt-2 mb-8 text-sm">
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
-          {formatDate(post.metadata.publishedAt)}
-        </p>
+    <div className="flex justify-center items-start pt-2 sm:pt-4">
+      <div className="terminal-window max-w-6xl">
+        <div className="terminal-header">
+          <span className="text-xs sm:text-sm">BLOG ARTICLE - {post.metadata.title.toUpperCase()}</span>
+        </div>
+        <div className="terminal-content">
+          <script
+            type="application/ld+json"
+            suppressHydrationWarning
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                '@context': 'https://schema.org',
+                '@type': 'BlogPosting',
+                headline: post.metadata.title,
+                datePublished: post.metadata.publishedAt,
+                dateModified: post.metadata.publishedAt,
+                description: post.metadata.summary,
+                image: post.metadata.image
+                  ? `${baseUrl}${post.metadata.image}`
+                  : `/og?title=${encodeURIComponent(post.metadata.title)}`,
+                url: `${baseUrl}/blog/${post.slug}`,
+                author: {
+                  '@type': 'Person',
+                  name: 'Kye Gomez',
+                },
+              }),
+            }}
+          />
+          
+          <div className="cyber-card mb-6 sm:mb-8">
+            <h1 className="neon-text-red text-2xl sm:text-3xl lg:text-4xl uppercase tracking-wider mb-3 sm:mb-4">
+              {post.metadata.title}
+            </h1>
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0 text-xs sm:text-sm">
+              <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4">
+                <div>
+                  <span className="neon-text-red text-xs uppercase tracking-wider">PUBLISHED</span>
+                  <p className="text-gray-300">
+                    {formatDate(post.metadata.publishedAt)}
+                  </p>
+                </div>
+                <div>
+                  <span className="neon-text-white text-xs uppercase tracking-wider">STATUS</span>
+                  <p className="text-red-400">ONLINE</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="cyber-card">
+            <article className="prose prose-invert max-w-none">
+              <CustomMDX source={post.content} />
+            </article>
+          </div>
+        </div>
       </div>
-      <article className="prose">
-        <CustomMDX source={post.content} />
-      </article>
-    </section>
+    </div>
   )
 }

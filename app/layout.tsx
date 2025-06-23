@@ -1,25 +1,37 @@
 import './global.css';
 import type { Metadata } from 'next';
-import { GeistSans } from 'geist/font/sans';
-import { GeistMono } from 'geist/font/mono';
+import { Orbitron, Share_Tech_Mono } from 'next/font/google';
 import { Navbar } from './components/nav';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import Footer from './components/footer';
 import { baseUrl } from './sitemap';
 
+const orbitron = Orbitron({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-orbitron',
+});
+
+const shareTechMono = Share_Tech_Mono({
+  subsets: ['latin'],
+  weight: '400',
+  display: 'swap',
+  variable: '--font-share-tech-mono',
+});
+
 export const metadata: Metadata = {
   metadataBase: new URL(baseUrl),
   title: {
-    default: 'Kye Gomez Home Page',
-    template: '%s | Kye Gomez Home Page',
+    default: 'KYE_GOMEZ.exe - Cyberpunk Terminal',
+    template: '%s | KYE_GOMEZ.exe',
   },
-  description: 'Advancing Humanity through AI, NanoTechnology, and Biology.',
+  description: 'Advancing Humanity through AI, NanoTechnology, and Biology. Welcome to the future.',
   openGraph: {
-    title: 'Kye Gomez Portfolio',
-    description: 'Advancing Humanity through AI, NanoTechnology, and Biology.',
+    title: 'KYE_GOMEZ.exe - Cyberpunk Terminal',
+    description: 'Advancing Humanity through AI, NanoTechnology, and Biology. Welcome to the future.',
     url: baseUrl,
-    siteName: 'Kye Gomez Portfolio',
+    siteName: 'KYE_GOMEZ.exe',
     locale: 'en_US',
     type: 'website',
   },
@@ -36,34 +48,54 @@ export const metadata: Metadata = {
   },
 };
 
-const cx = (...classes: (string | boolean | undefined)[]) => classes.filter(Boolean).join(' ');
-
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html
-      lang="en"
-      className={cx(
-        'text-black bg-white dark:text-white dark:bg-black',
-        GeistSans.variable,
-        GeistMono.variable
-      )}
-    >
-      <body className="antialiased">
-        <main className="flex-auto min-w-0 flex flex-col">
-          <div className="max-w-xl mx-4 lg:mx-auto">
-            <Navbar />
-          </div>
+    <html lang="en" className={`${orbitron.variable} ${shareTechMono.variable}`}>
+      <body>
+        <div className="matrix-bg" id="matrix-bg"></div>
+        <main className="min-h-screen">
+          <Navbar />
           {children}
-          <div className="max-w-xl mx-4 lg:mx-auto">
-            <Footer />
-          </div>
+          <Footer />
           <Analytics />
           <SpeedInsights />
         </main>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            // Matrix rain effect
+            function createMatrixRain() {
+              const matrixBg = document.getElementById('matrix-bg');
+              if (!matrixBg) return;
+              
+              const chars = '01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン';
+              const columns = Math.floor(window.innerWidth / 20);
+              
+              for (let i = 0; i < columns; i++) {
+                const char = document.createElement('div');
+                char.className = 'matrix-char';
+                char.style.left = i * 20 + 'px';
+                char.style.animationDelay = Math.random() * 3 + 's';
+                char.textContent = chars[Math.floor(Math.random() * chars.length)];
+                matrixBg.appendChild(char);
+              }
+            }
+            
+            if (typeof window !== 'undefined') {
+              createMatrixRain();
+              window.addEventListener('resize', () => {
+                const matrixBg = document.getElementById('matrix-bg');
+                if (matrixBg) {
+                  matrixBg.innerHTML = '';
+                  createMatrixRain();
+                }
+              });
+            }
+          `
+        }} />
       </body>
     </html>
   );
