@@ -796,18 +796,4 @@ p {
   }
 }
 
-.loading-bar {
-  background: linear-gradient(90deg, var(--neon-red), var(--pure-white), var(--neon-red));
-  opacity: 0.8;
-  width: 50%;
-  border-radius: 4px;
-}
 
-@keyframes loading-bar-shimmer {
-  0% { left: -50%; }
-  100% { left: 100%; }
-}
-
-.animate-loading-bar {
-  animation: loading-bar-shimmer 2s linear infinite;
-}
