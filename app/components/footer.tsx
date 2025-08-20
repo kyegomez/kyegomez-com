@@ -48,7 +48,7 @@ export default function Footer() {
             <CategorySection title="Connect">
               <LinkButton href="https://github.com/kyegomez" text="GitHub" category="social" />
               <LinkButton href="https://x.com/KyeGomezB" text="Twitter/X" category="social" />
-              <LinkButton href="https://discord.gg/jM3Z6M9uMq" text="Discord" category="social" />
+              <LinkButton href="https://discord.gg/EamjgSaEQf" text="Discord" category="social" />
               <LinkButton href="https://www.youtube.com/@kyegomez3242" text="YouTube" category="social" />
               <LinkButton href="https://www.instagram.com/kye_gomez/" text="Instagram" category="social" />
               <LinkButton href="https://www.linkedin.com/in/kye-g-38759a207/" text="Linkedin" category="social" />
