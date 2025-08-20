@@ -41,7 +41,7 @@ export default function Footer() {
     <footer className="mx-auto max-w-7xl px-2 sm:px-4 py-8 sm:py-16">
       <div className="terminal-window mb-6 sm:mb-8">
         <div className="terminal-header">
-          <span className="text-xs sm:text-sm">NETWORK CONNECTIONS - EXTERNAL LINKS</span>
+          <span className="text-xs sm:text-sm">EXTERNAL LINKS</span>
         </div>
         <div className="terminal-content">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">

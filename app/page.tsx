@@ -9,7 +9,7 @@ export default function HomePage() {
         <div className="terminal-content">
           {/* Mission Statement Section */}
           <div className="mb-8">
-            <h2 className="neon-text-red mb-6 text-2xl lg:text-3xl">MISSION STATEMENT</h2>
+            <h2 className="neon-text-red mb-8 text-2xl lg:text-3xl">MISSION STATEMENT</h2>
             <div className="cyber-card">
               <p className="text-gray-300 text-base leading-relaxed">
                 My name is Kye Gomez, I'm 21 years old and my mission is to conquer the universe to expand Humanity. 
@@ -24,31 +24,47 @@ export default function HomePage() {
 
           {/* Experience Section */}
           <div className="mb-8">
-            <h2 className="neon-text-red mb-6 text-2xl lg:text-3xl">EXPERIENCE</h2>
+            <h2 className="neon-text-red mb-8 text-2xl lg:text-3xl">EXPERIENCE</h2>
             <div className="space-y-6">
               <div className="cyber-card">
                 <h3 className="neon-text-red text-xl lg:text-2xl mb-3">Founder & CEO</h3>
                 <p className="text-gray-300 text-base mb-2">Agora Labs (agoralabs.ai)</p>
                 <p className="text-gray-400 text-sm mb-3">2022 - 2025</p>
-                <p className="text-gray-300 text-sm">
+                <p className="text-gray-300 text-sm mb-4">
                   Leading AI research and development with a global team of researchers.
                 </p>
+                <a 
+                  href="https://agoralabs.ai" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-block px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors duration-200"
+                >
+                  Visit Website
+                </a>
               </div>
 
               <div className="cyber-card">
                 <h3 className="neon-text-red text-xl lg:text-2xl mb-3">Founder & CEO</h3>
                 <p className="text-gray-300 text-base mb-2">Swarms.ai</p>
                 <p className="text-gray-400 text-sm mb-3">Multi-Agent AI Research Lab</p>
-                <p className="text-gray-300 text-sm">
+                <p className="text-gray-300 text-sm mb-4">
                   Pioneering multi-agent systems and swarm intelligence research.
                 </p>
+                <a 
+                  href="https://swarms.ai" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="inline-block px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm rounded transition-colors duration-200"
+                >
+                  Visit Website
+                </a>
               </div>
             </div>
           </div>
 
           {/* Research Interests Section */}
           <div className="mb-8">
-            <h2 className="neon-text-white mb-6 text-2xl lg:text-3xl">RESEARCH INTERESTS</h2>
+            <h2 className="neon-text-white mb-8 text-2xl lg:text-3xl">RESEARCH INTERESTS</h2>
             <div className="cyber-card">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -65,7 +81,7 @@ export default function HomePage() {
 
           {/* Personal Interests Section */}
           <div className="mb-8">
-            <h2 className="neon-text-red mb-6 text-2xl lg:text-3xl">PERSONAL INTERESTS</h2>
+            <h2 className="neon-text-red mb-8 text-2xl lg:text-3xl">PERSONAL INTERESTS</h2>
             <div className="cyber-card">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -82,7 +98,7 @@ export default function HomePage() {
 
           {/* About Section */}
           <div className="mb-8">
-            <h2 className="neon-text-white mb-6 text-2xl lg:text-3xl">ABOUT</h2>
+            <h2 className="neon-text-white mb-8 text-2xl lg:text-3xl">ABOUT</h2>
             <div className="cyber-card mb-6">
               <h3 className="neon-text-red text-2xl lg:text-3xl mb-4">KYE GOMEZ</h3>
               <div className="space-y-3">
