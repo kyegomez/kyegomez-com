@@ -21,7 +21,7 @@ export function Navbar() {
       <div className="container-responsive">
         <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
           <div className="flex flex-col items-start w-full sm:w-auto">
-            <span className="neon-text-red text-lg sm:text-xl font-bold">KYE_GOMEZ.exe</span>
+            <span className="neon-text-red text-lg sm:text-xl font-bold">Kye Gomez Home Page</span>
           </div>
           <div className="flex space-x-1">
             {Object.entries(navItems).map(([path, { name, icon }]) => {
