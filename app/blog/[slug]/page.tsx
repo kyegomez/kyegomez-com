@@ -1,7 +1,8 @@
+import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { CustomMDX } from 'app/components/mdx';
 import { formatDate, getBlogPosts } from 'app/blog/utils';
-import { baseUrl } from 'app/sitemap';
+import { absoluteUrl } from 'app/seo';
 
 export async function generateStaticParams() {
   const posts = getBlogPosts();
@@ -11,24 +12,28 @@ export async function generateStaticParams() {
   }));
 }
 
-export function generateMetadata({ params }) {
+export function generateMetadata({ params }): Metadata | undefined {
   const post = getBlogPosts().find((item) => item.slug === params.slug);
   if (!post) {
     return;
   }
 
   const { title, publishedAt: publishedTime, summary: description, image } = post.metadata;
-  const ogImage = image ? image : `${baseUrl}/og?title=${encodeURIComponent(title)}`;
+  const ogImage = image ? absoluteUrl(image) : absoluteUrl(`/og?title=${encodeURIComponent(title)}`);
+  const canonicalUrl = absoluteUrl(`/blog/${post.slug}`);
 
   return {
     title,
     description,
+    alternates: {
+      canonical: `/blog/${post.slug}`,
+    },
     openGraph: {
       title,
       description,
       type: 'article',
       publishedTime,
-      url: `${baseUrl}/blog/${post.slug}`,
+      url: canonicalUrl,
       images: [{ url: ogImage }],
     },
     twitter: {
@@ -47,7 +52,7 @@ export default function BlogPost({ params }) {
     notFound();
   }
 
-  const postUrl = `https://kyegomez.com/blog/${post.slug}`;
+  const postUrl = absoluteUrl(`/blog/${post.slug}`);
 
   return (
     <div className="page-wrap">
@@ -64,10 +69,15 @@ export default function BlogPost({ params }) {
               dateModified: post.metadata.publishedAt,
               description: post.metadata.summary,
               image: post.metadata.image
-                ? `${baseUrl}${post.metadata.image}`
-                : `/og?title=${encodeURIComponent(post.metadata.title)}`,
-              url: `${baseUrl}/blog/${post.slug}`,
+                ? absoluteUrl(post.metadata.image)
+                : absoluteUrl(`/og?title=${encodeURIComponent(post.metadata.title)}`),
+              url: postUrl,
+              mainEntityOfPage: postUrl,
               author: {
+                '@type': 'Person',
+                name: 'Kye Gomez',
+              },
+              publisher: {
                 '@type': 'Person',
                 name: 'Kye Gomez',
               },

@@ -16,6 +16,7 @@ export async function GET() {
         `<item>
           <title>${post.metadata.title}</title>
           <link>${baseUrl}/blog/${post.slug}</link>
+          <guid>${baseUrl}/blog/${post.slug}</guid>
           <description>${post.metadata.summary || ''}</description>
           <pubDate>${new Date(
             post.metadata.publishedAt
@@ -25,11 +26,13 @@ export async function GET() {
     .join('\n')
 
   const rssFeed = `<?xml version="1.0" encoding="UTF-8" ?>
-  <rss version="2.0">
+  <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
     <channel>
-        <title>My Portfolio</title>
+        <title>Kye Gomez Blog</title>
         <link>${baseUrl}</link>
-        <description>This is my portfolio RSS feed</description>
+        <description>Essays on AI, multi-agent systems, economics, and engineering.</description>
+        <language>en-us</language>
+        <atom:link href="${baseUrl}/rss" rel="self" type="application/rss+xml" />
         ${itemsXml}
     </channel>
   </rss>`

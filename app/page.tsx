@@ -1,7 +1,43 @@
+import type { Metadata } from 'next';
+import { absoluteUrl, siteConfig } from './seo';
+
+export const metadata: Metadata = {
+  title: 'Kye Gomez | AI Researcher and Founder of Swarms.ai',
+  description: siteConfig.description,
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: siteConfig.title,
+    description: siteConfig.description,
+    url: absoluteUrl('/'),
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: siteConfig.title,
+    description: siteConfig.description,
+  },
+};
+
 export default function HomePage() {
   return (
     <div className="page-wrap">
       <section className="page-block">
+        <script
+          type="application/ld+json"
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'WebPage',
+              name: 'Kye Gomez',
+              description: siteConfig.description,
+              url: absoluteUrl('/'),
+              about: ['AI', 'Multi-agent systems', 'Open-source software'],
+            }),
+          }}
+        />
         <h1 className="page-title">Hey 👋 Welcome to my site!</h1>
         <p className="page-subtitle">
           I am Kye Gomez, Co-Founder & CEO of Swarms and Previously Agora Labs. Presently researching large-scale multi-agent systems, alternative LLM model architectures, and more.

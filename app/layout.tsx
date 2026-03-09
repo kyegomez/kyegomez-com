@@ -6,7 +6,7 @@ import { BackButton } from './components/back-button';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import Footer from './components/footer';
-import { baseUrl } from './sitemap';
+import { absoluteUrl, siteConfig } from './seo';
 
 const manrope = Manrope({
   subsets: ['latin'],
@@ -22,31 +22,56 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(baseUrl),
+  metadataBase: new URL(siteConfig.url),
   title: {
-    default: 'Kye Gomez | Founder of swarms.ai & agoralab.ai | Open Source AI Researcher',
+    default: siteConfig.title,
     template: '%s | Kye Gomez',
   },
-  description:
-    'Kye Gomez is the founder of swarms.ai and agoralab.ai, and an open source AI researcher dedicated to advancing humanity through technology.',
+  description: siteConfig.description,
+  applicationName: 'Kye Gomez',
+  alternates: {
+    canonical: '/',
+    types: {
+      'application/rss+xml': [{ url: '/rss', title: 'Kye Gomez RSS Feed' }],
+    },
+  },
+  authors: [{ name: 'Kye Gomez', url: siteConfig.url }],
+  creator: 'Kye Gomez',
+  publisher: 'Kye Gomez',
   keywords: [
     'Kye Gomez',
     'swarms.ai',
-    'agoralab.ai',
+    'agora labs',
     'open source',
     'AI researcher',
     'artificial intelligence',
-    'U/acc',
-    'swarms',
+    'multi-agent systems',
+    'LLM architecture',
+    'AI engineering',
   ],
   openGraph: {
-    title: 'Kye Gomez | Founder of swarms.ai & agoralab.ai',
-    description:
-      'Kye Gomez is the founder of swarms.ai and agoralab.ai, and an open source AI researcher.',
-    url: baseUrl,
+    title: siteConfig.title,
+    description: siteConfig.description,
+    url: siteConfig.url,
     siteName: 'Kye Gomez',
     locale: 'en_US',
     type: 'website',
+    images: [
+      {
+        url: absoluteUrl(siteConfig.ogImage),
+        width: 1200,
+        height: 630,
+        alt: 'Kye Gomez website preview image',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: siteConfig.title,
+    description: siteConfig.description,
+    creator: siteConfig.xHandle,
+    site: siteConfig.xHandle,
+    images: [absoluteUrl(siteConfig.ogImage)],
   },
   robots: {
     index: true,
@@ -59,6 +84,7 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  category: 'technology',
 };
 
 export default function RootLayout({
@@ -69,6 +95,31 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${manrope.variable} ${ibmPlexMono.variable}`}>
       <body>
+        <script
+          type="application/ld+json"
+          suppressHydrationWarning
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'Person',
+              name: 'Kye Gomez',
+              url: siteConfig.url,
+              email: siteConfig.email,
+              sameAs: [
+                'https://github.com/kyegomez',
+                'https://x.com/KyeGomezB',
+                'https://www.linkedin.com/in/kye-g-38759a207/',
+                'https://www.youtube.com/@kyegomez3242',
+                'https://medium.com/@kyeg',
+              ],
+              worksFor: {
+                '@type': 'Organization',
+                name: 'Swarms',
+                url: 'https://swarms.ai',
+              },
+            }),
+          }}
+        />
         <main className="site-shell">
           <Navbar />
           <BackButton />
