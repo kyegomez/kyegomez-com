@@ -16,6 +16,8 @@ export default function Footer() {
       links: [
         ['https://github.com/kyegomez', 'GitHub'],
         ['https://x.com/KyeGomezB', 'X / Twitter'],
+        ['https://www.youtube.com/@kyegomez3242', 'YouTube'],
+        ['https://medium.com/@kyeg', 'Medium'],
         ['https://www.linkedin.com/in/kye-g-38759a207/', 'LinkedIn'],
         ['mailto:kye@swarms.world', 'Email'],
       ],
@@ -23,7 +25,7 @@ export default function Footer() {
     {
       title: 'Companies',
       links: [
-        ['https://swarms.world', 'Swarms'],
+        ['https://swarms.ai', 'Swarms'],
         ['https://agoralab.ai', 'Agora Lab'],
         ['https://apac.ai', 'APAC AI'],
       ],

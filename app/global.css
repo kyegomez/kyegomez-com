@@ -84,6 +84,18 @@ a {
   font-size: clamp(0.98rem, 0.92rem + 0.45vw, 1.15rem);
 }
 
+.hero-reachout {
+  margin: 0.7rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+.hero-reachout-link {
+  color: var(--text);
+  text-decoration-color: #b7b2a5;
+  text-underline-offset: 3px;
+}
+
 .section-title {
   margin: 0;
   letter-spacing: -0.03em;

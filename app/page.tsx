@@ -6,11 +6,12 @@ export default function HomePage() {
         <p className="page-subtitle">
           I am Kye Gomez, Co-Founder & CEO of Swarms and Previously Agora Labs. Presently researching large-scale multi-agent systems, alternative LLM model architectures, and more.
         </p>
-        <div className="meta-row">
-          <span className="pill">Open Source First</span>
-          <span className="pill">Research to Production</span>
-          <span className="pill">Global Builder Mindset</span>
-        </div>
+        <p className="hero-reachout">
+          Reach out to me via email:{' '}
+          <a href="mailto:kye@swarms.world" className="hero-reachout-link">
+            kye@swarms.world
+          </a>
+        </p>
       </section>
 
       <section className="page-block" style={{ marginTop: '0.9rem' }}>
