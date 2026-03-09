@@ -1,44 +1,36 @@
-import Link from 'next/link'
+'use client';
 
-const navItems = {
-  '/': {
-    name: 'HOME',
-    icon: '⚡'
-  },
-  '/blog': {
-    name: 'BLOG',
-    icon: '📝'
-  },
-  '/repositories': {
-    name: 'REPOSITORIES',
-    icon: '📂'
-  }
-}
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+
+const navItems = [
+  { href: '/', label: 'Home' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/repositories', label: 'Repositories' },
+];
 
 export function Navbar() {
+  const pathname = usePathname();
+
   return (
-    <nav className="cyber-nav">
-      <div className="container-responsive">
-        <div className="flex flex-col sm:flex-row justify-between items-center space-y-2 sm:space-y-0">
-          <div className="flex flex-col items-start w-full sm:w-auto">
-            <span className="neon-text-red text-lg sm:text-xl font-bold">Kye Gomez Home Page</span>
-          </div>
-          <div className="flex space-x-1">
-            {Object.entries(navItems).map(([path, { name, icon }]) => {
-              return (
-                <Link
-                  key={path}
-                  href={path}
-                  className="flex items-center space-x-1 sm:space-x-2 px-2 sm:px-4 py-1 sm:py-2 rounded transition-all duration-300 hover:scale-105 text-xs sm:text-sm"
-                >
-                  <span className="text-sm sm:text-lg">{icon}</span>
-                  <span className="font-bold hidden sm:inline">{name}</span>
-                </Link>
-              )
-            })}
-          </div>
+    <header className="site-header">
+      <div className="site-header-inner">
+        <div>
+          <p className="brand-title">Kye Gomez</p>
+          <p className="brand-subtitle">Research, Systems, and Open Source</p>
         </div>
+        <nav className="site-nav" aria-label="Primary navigation">
+          {navItems.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`nav-link ${pathname === item.href ? 'active' : ''}`}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </nav>
       </div>
-    </nav>
-  )
+    </header>
+  );
 }
