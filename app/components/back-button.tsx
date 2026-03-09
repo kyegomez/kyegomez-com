@@ -24,10 +24,12 @@ export function BackButton() {
           <span>Go back</span>
         </button>
       )}
-      <Link href="/" className="page-action-btn" aria-label="Go home">
-        <span aria-hidden="true">&#8962;</span>
-        <span>Home</span>
-      </Link>
+      {pathname !== '/' && (
+        <Link href="/" className="page-action-btn" aria-label="Go home">
+          <span aria-hidden="true">&#8962;</span>
+          <span>Home</span>
+        </Link>
+      )}
     </div>
   );
 }

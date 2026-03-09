@@ -256,6 +256,10 @@ a {
   letter-spacing: -0.01em;
 }
 
+.brand-title-link {
+  text-decoration: none;
+}
+
 .brand-subtitle {
   margin: 0.2rem 0 0;
   font-family: var(--font-ibm-plex-mono), 'Menlo', monospace;

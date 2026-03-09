@@ -15,8 +15,9 @@ export function Navbar() {
     <header className="site-header">
       <div className="site-header-inner">
         <div>
-          <p className="brand-title">Kye Gomez</p>
-          <p className="brand-subtitle">Research, Systems, and Open Source</p>
+          <Link href="/" className="brand-title-link">
+            <p className="brand-title">Kye Gomez</p>
+          </Link>
         </div>
         <nav className="site-nav" aria-label="Primary navigation">
           {navItems.map((item) => (
