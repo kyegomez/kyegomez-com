@@ -17,7 +17,7 @@ export default function Footer() {
         ['https://github.com/kyegomez', 'GitHub'],
         ['https://x.com/KyeGomezB', 'X / Twitter'],
         ['https://www.linkedin.com/in/kye-g-38759a207/', 'LinkedIn'],
-        ['mailto:kye@kyegomez.com', 'Email'],
+        ['mailto:kye@swarms.world', 'Email'],
       ],
     },
     {

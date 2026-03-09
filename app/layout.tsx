@@ -2,6 +2,7 @@ import './global.css';
 import type { Metadata } from 'next';
 import { Manrope, IBM_Plex_Mono } from 'next/font/google';
 import { Navbar } from './components/nav';
+import { BackButton } from './components/back-button';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import Footer from './components/footer';
@@ -70,6 +71,7 @@ export default function RootLayout({
       <body>
         <main className="site-shell">
           <Navbar />
+          <BackButton />
           {children}
           <Footer />
           <Analytics />

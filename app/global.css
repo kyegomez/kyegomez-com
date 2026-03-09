@@ -199,6 +199,45 @@ a {
   gap: 1rem;
 }
 
+.page-action-wrap {
+  width: min(1120px, calc(100% - 2rem));
+  margin: 0.85rem auto 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.page-action-btn {
+  min-height: 2.2rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--surface) 90%, white 10%);
+  color: var(--text);
+  font-size: 0.84rem;
+  line-height: 1.1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.42rem;
+  padding: 0.45rem 0.82rem;
+  text-decoration: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 180ms ease, border-color 180ms ease, background-color 180ms ease;
+}
+
+.page-action-btn:hover {
+  transform: translateY(-1px);
+  border-color: #b8b2a5;
+  background: #f1eee6;
+}
+
+.page-action-btn:focus-visible {
+  outline: 2px solid #ccc8be;
+  outline-offset: 2px;
+}
+
 .brand-title {
   margin: 0;
   font-size: 0.95rem;

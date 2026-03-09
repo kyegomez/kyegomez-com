@@ -2,10 +2,9 @@ export default function HomePage() {
   return (
     <div className="page-wrap">
       <section className="page-block">
-        <h1 className="page-title">Building durable AI systems that extend human capability.</h1>
+        <h1 className="page-title">Hey 👋 Welcome to my site!</h1>
         <p className="page-subtitle">
-          I am Kye Gomez, founder of Agora Labs and Swarms. My work focuses on practical research in multi-agent systems,
-          robust infrastructure, and open source collaboration.
+          I am Kye Gomez, Co-Founder & CEO of Swarms and Previously Agora Labs. Presently researching large-scale multi-agent systems, alternative LLM model architectures, and more.
         </p>
         <div className="meta-row">
           <span className="pill">Open Source First</span>
@@ -56,7 +55,7 @@ export default function HomePage() {
 
           <article className="card col-span-12 sm:col-span-6">
             <h3>Agora Labs</h3>
-            <p>Applied AI R&D with an emphasis on shipping useful products quickly.</p>
+            <p>Research lab focused on alternative multi-modal model architectures.</p>
             <div className="meta-row">
               <a className="button subtle" href="https://agoralabs.ai" target="_blank" rel="noopener noreferrer">
                 Visit agoralabs.ai

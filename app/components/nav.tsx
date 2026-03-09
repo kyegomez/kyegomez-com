@@ -11,7 +11,6 @@ const navItems = [
 
 export function Navbar() {
   const pathname = usePathname();
-
   return (
     <header className="site-header">
       <div className="site-header-inner">
