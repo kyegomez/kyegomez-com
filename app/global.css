@@ -96,6 +96,63 @@ a {
   text-underline-offset: 3px;
 }
 
+.home-rows {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.home-row-card {
+  background: color-mix(in srgb, var(--surface) 95%, white 5%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  padding: clamp(1.15rem, 1rem + 0.7vw, 1.6rem);
+}
+
+.experience-stack {
+  margin-top: 0.35rem;
+  display: grid;
+  gap: 0.95rem;
+}
+
+.experience-item {
+  background: #fcfbf8;
+  border: 1px solid #ddd8ce;
+  border-radius: 0.85rem;
+  padding: 0.9rem 0.95rem;
+}
+
+.experience-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.experience-head h3 {
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.experience-role {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid #d7d1c5;
+  background: #f4f1ea;
+  color: #4c4942;
+  padding: 0.24rem 0.58rem;
+  font-size: 0.74rem;
+  font-weight: 600;
+  font-family: var(--font-ibm-plex-mono), 'Menlo', monospace;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.experience-item p {
+  margin: 0.58rem 0 0;
+}
+
 .section-title {
   margin: 0;
   letter-spacing: -0.03em;
