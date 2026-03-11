@@ -1,0 +1,145 @@
+---
+title: 'Reverse-Engineering Claude: What a Bug Report Reveals About Anthropic's AI Infrastructure'
+publishedAt: '2026-03-10'
+summary: 'An analysis of Anthropic's September 2025 postmortem and what it tells us about the technical architecture powering Claude.'
+---
+
+Frontier AI labs are famously secretive about their model architectures. Parameter counts, training setups, and inference stacks are treated as core intellectual property rarely disclosed, never in detail. That's what makes Anthropic's [September 2025 postmortem](https://www.anthropic.com/engineering/a-postmortem-of-three-recent-issues) so remarkable. Published to explain a series of infrastructure bugs that degraded Claude's response quality between August and September 2025, the report is ostensibly an accountability document. But read carefully, it's something else entirely: one of the most detailed public glimpses into a frontier lab's production inference stack ever published.
+
+This article reverse-engineers that postmortem. By combining what Anthropic disclosed deliberately and incidentally with corroborating public research, we can construct a surprisingly detailed picture of how Claude is built, compiled, deployed, and served at scale.
+
+---
+
+## The Software Stack: JAX All the Way Down
+
+The most foundational disclosure in the postmortem is tucked into a footnote:
+
+> *"XLA:TPU is the optimizing compiler that translates XLA High Level Optimizing language often written using **JAX** to TPU machine instructions."*
+
+This confirms that Claude is implemented in **JAX**, Google's functional machine learning framework. JAX traces Python functions, constructs computation graphs, and JIT-compiles them via **XLA** (Accelerated Linear Algebra) to hardware-optimized machine instructions. The full stack looks like this:
+```
+JAX (Python frontend)
+  └── XLA HLO (High-Level Optimizer IR)
+        └── XLA:TPU compiler
+              └── TPU hardware (MXU matrix units + vector processors)
+```
+
+This is the same stack used internally at Google DeepMind and Anthropic's partnership with Google gives them matching-level access to the JAX, XLA, and TPU toolchain. JAX is well-suited to large transformer workloads: its functional purity makes it straightforward to express tensor-parallel sharding, its JIT compilation produces highly optimized TPU kernels, and its `pjit` / GSPMD infrastructure handles distributing computation across hundreds or thousands of chips.
+
+---
+
+## Hardware: A Three-Cloud Inference Fleet
+
+Claude doesn't run on a single platform. The postmortem confirms three distinct hardware backends:
+
+- **Google TPUs** primary inference platform, now scaling toward one million chips under a landmark 2025 partnership
+- **AWS Trainium** primary training partner, with Project Rainier deploying ~500,000 Trainium2 chips in Indiana
+- **NVIDIA GPUs** supplemental capacity for flexibility and geographic distribution
+
+Each platform requires its own low-level optimizations. The postmortem notes that "despite these variations, we have strict equivalence standards for model implementations" meaning the *same model* must produce identical outputs whether it runs on a TPU in a Google data center or a Trainium cluster on AWS. This cross-platform equivalence constraint is what made the bugs so hard to isolate: each manifested differently depending on which hardware served the request.
+
+The TPU deployment in particular reveals something about scale. The postmortem states that Claude models are "partitioned across **tens of chips or more**" using tensor parallelism. This means model weights are physically split across multiple chips, with each chip holding a slice of each layer's weight matrices. For a bf16 model with ~300 billion parameters a reasonable estimate for Claude Opus the weights alone consume roughly 600 GB, requiring at least 20 TPU v5p chips (each with 32 GB HBM) just to hold the model in memory.
+
+---
+
+## Numerical Precision: Where the Bugs Lived
+
+The most technically dense section of the postmortem concerns floating-point precision and it rewards careful reading.
+
+Claude's inference pipeline uses a two-tier precision regime:
+
+- **Next-token probability computation:** uses **bf16** (16-bit bfloat)
+- **TPU vector processor (native):** operates at **fp32** (32-bit float)
+- **XLA `xla_allow_excess_precision` flag:** set to `true` (default)
+- **Post-fix: all sampling operations:** standardized to **fp32**
+
+BFloat16 is the workhorse format for transformer inference on TPUs. It has the same exponent range as fp32 (important for stability during training), but half the precision ideal for matrix multiplications in attention and feed-forward layers. The TPU's vector processor, however, is natively fp32, so XLA's optimizer is permitted to silently upcast bf16 operations to fp32 when it can do so faster.
+
+This is where things broke. The probability sort at the heart of token sampling is a **distributed operation** logits are spread across multiple chips, so finding the global top-k requires an inter-chip gather and sort. Different parts of this distributed computation were running at different precisions (some in bf16, some upcast to fp32), so they *disagreed* on which token had the highest probability. The result: the highest-probability token occasionally vanished from consideration entirely, producing degraded or incoherent outputs.
+
+The fix was to explicitly standardize all sampling operations to fp32 and switch from an **approximate top-k** to an **exact top-k** implementation.
+
+---
+
+## Sampling: The Mechanics of Token Generation
+
+The postmortem provides an unusually clear description of Claude's token sampling pipeline:
+
+1. The model computes a probability distribution over its entire vocabulary for the next token
+2. **Top-p (nucleus) sampling** is applied: only tokens whose cumulative probability reaches a threshold (typically **p = 0.99 or 0.999**) are kept in consideration
+3. **Top-k filtering** narrows the candidate set further using an approximate (now exact) sort
+4. A token is sampled from the remaining distribution, weighted by probability
+
+The approximate top-k they had been using is almost certainly XLA's `approx_max_k` primitive a hardware-optimized operation on TPUs that uses bitonic-sort-style algorithms to find top elements quickly, at the cost of occasional inaccuracy at the tail. For most tokens, "occasional inaccuracy at the tail" is harmless. But the compiler bug was causing it to drop the *highest*-probability token, not a tail token turning a reasonable optimization into a correctness violation.
+
+After the fix, Anthropic switched to exact top-k, accepting a minor efficiency tradeoff in exchange for guaranteed correctness. As the postmortem notes: "Model quality is non-negotiable, so we accepted the minor efficiency impact."
+
+---
+
+## Model Architecture: Dense Transformer (Not MoE)
+
+Anthropic publishes no model cards with architectural details, but converging signals point strongly to a **dense autoregressive transformer** not a Mixture of Experts (MoE) architecture like DeepSeek-V3 or Llama 4.
+
+Several lines of evidence support this:
+
+**Interpretability research.** Anthropic's extensive mechanistic interpretability work including their 2024 dictionary learning paper identifying millions of "features" in Claude 3.5 Haiku is designed for the dense residual stream of a standard transformer. Features in this framework are directions in a shared activation space, superimposed via linear combination. This structure is a property of dense models; MoE models route tokens to separate expert networks, producing a fundamentally different activation geometry.
+
+**Cross-layer transcoder research.** Anthropic researchers replaced Claude 3.5 Haiku's feed-forward layers with interpretable "cross-layer transcoders" two-layer networks whose intermediate activations correspond to human-interpretable concepts. This substitution presupposes a standard FFN architecture, not a gated expert routing system.
+
+**Training compute estimates.** Rumors prior to Claude 4's release suggested Anthropic tested a model with roughly four times the training compute of Claude 3 Opus. For a dense model, this represents straightforward scale-up. A MoE model at that scale would be architecturally distinct in ways that would likely have surfaced in public evaluations or disclosures.
+
+The architecture, in short, appears to be a scaled, heavily fine-tuned dense transformer not the sparse-expert designs that competitors have increasingly adopted for efficiency.
+
+---
+
+## The Context Window Split
+
+One of the more structurally interesting disclosures was the nature of the routing bug itself. Short-context requests were being accidentally sent to servers configured for an upcoming **1M token context window**. This detail implies something important: long-context and short-context inference don't just use the same server with different settings. They run on **separate server pools with distinct configurations**.
+
+This likely reflects real architectural differences. Very long context windows require:
+
+- Different **KV-cache memory allocation** (the key-value cache for 1M tokens dwarfs that for a 200K context)
+- Different **attention implementations** (standard quadratic attention becomes impractical; chunked, sliding-window, or linear attention variants are typically used)
+- Different **positional encoding parameters** (RoPE base frequencies are typically scaled for longer contexts)
+
+The fact that misrouting degraded outputs confirms these pools are not interchangeable a request optimized for short context behaves incorrectly when served by long-context infrastructure.
+
+---
+
+## Training: Constitutional AI and Beyond
+
+The postmortem doesn't cover training directly, but Anthropic's published research fills in the picture:
+
+- **Pre-training** on a large corpus of text and multimodal data, using standard next-token prediction
+- **Supervised Fine-Tuning (SFT)** on curated instruction-following datasets, emphasizing coding, reasoning, and safety
+- **Constitutional AI (CAI)**: a variant of RLHF where a written "constitution" of principles guides a reward model, replacing (or augmenting) human preference labels with AI-generated critiques
+- **RLAIF (Reinforcement Learning from AI Feedback)**: AI-generated feedback scaled across billions of examples
+- **Mechanistic interpretability** used as an evaluation and auditing tool not just research, but part of how Anthropic assesses whether training is producing the intended behavior
+
+---
+
+## What We Still Don't Know
+
+For all the postmortem reveals, significant gaps remain:
+
+- **Parameter counts** are not disclosed and estimates range widely (50–500B depending on model tier)
+- **Training data composition** is opaque (the "Project Panama" book-scanning operation, revealed in 2026 court filings, hints at aggressive proprietary data collection)
+- **Attention mechanism specifics** whether they use multi-head, grouped-query, or multi-query attention are unconfirmed
+- **Tokenizer details** vocabulary size, encoding scheme are unpublished
+- Whether Anthropic is experimenting with **MoE for future models** (given industry trends) is unknown
+
+---
+
+## Conclusion
+
+A bug report is, at its core, a narrative of a system behaving in ways its designers didn't intend. And in explaining the gap between intent and reality, it necessarily reveals what the designers intended in the first place. Anthropic's September 2025 postmortem is no exception.
+
+From a single document, we can confirm that Claude runs on JAX compiled via XLA; that it uses tensor parallelism across tens of TPU chips; that it samples via top-p nucleus sampling with bf16 logits and fp32 accumulation; that short- and long-context requests route to architecturally distinct server pools; and that the model is almost certainly a dense transformer, not a mixture-of-experts design.
+
+These details matter beyond technical curiosity. They illuminate the engineering tradeoffs precision vs. performance, approximate vs. exact algorithms, platform diversity vs. operational complexity that determine how reliably a frontier AI system actually behaves when it reaches millions of users. Reliability, it turns out, is as much a compiler problem as a model problem.
+
+The real lesson of the postmortem is one Anthropic states plainly: "We relied too heavily on noisy evaluations." Benchmarks don't catch compiler bugs. Unit tests don't catch distributed precision mismatches. What caught these bugs, ultimately, was users noticing that something felt wrong and saying so.
+
+---
+
+*Sources: Anthropic Engineering Blog (Sept. 2025), Google Cloud / Anthropic TPU partnership announcements, Anthropic interpretability research papers, public infrastructure analyses.*

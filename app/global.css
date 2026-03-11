@@ -14,6 +14,17 @@
   --radius-md: 0.9rem;
   --shadow-sm: 0 1px 2px rgba(22, 22, 21, 0.04), 0 14px 40px rgba(22, 22, 21, 0.05);
   --shadow-md: 0 20px 40px rgba(22, 22, 21, 0.08);
+
+  /* sugar-high token colors */
+  --sh-class: #7aa2f7;
+  --sh-identifier: #c6c3bb;
+  --sh-sign: #9a958a;
+  --sh-property: #bfa76a;
+  --sh-entity: #7dcfff;
+  --sh-jsxliterals: #bb9af7;
+  --sh-string: #9ece6a;
+  --sh-keyword: #f7768e;
+  --sh-comment: #7c7670;
 }
 
 * {
@@ -560,9 +571,13 @@ a {
 }
 
 .mdx {
-  color: var(--text-muted);
-  line-height: 1.72;
-  font-size: 0.99rem;
+  width: 100%;
+  max-width: 92ch;
+  margin: 0;
+  color: var(--text);
+  line-height: 1.78;
+  font-size: 1.03rem;
+  text-wrap: pretty;
 }
 
 .mdx h1,
@@ -573,14 +588,77 @@ a {
 .mdx h6 {
   color: var(--text);
   letter-spacing: -0.03em;
-  margin: 1.55rem 0 0.7rem;
   line-height: 1.22;
+  scroll-margin-top: 6rem;
+}
+
+.mdx h1 {
+  margin: 0.2rem 0 0.85rem;
+  font-size: clamp(1.7rem, 1.35rem + 1.55vw, 2.55rem);
+}
+
+.mdx h1 + p {
+  margin-top: -0.25rem;
+  margin-bottom: 1.45rem;
+  font-size: 1.08rem;
+  line-height: 1.65;
+  color: var(--text-muted);
+}
+
+.mdx h1 + p em {
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.mdx h2 {
+  margin: 2.2rem 0 0.75rem;
+  font-size: clamp(1.3rem, 1.1rem + 0.9vw, 1.8rem);
+}
+
+.mdx h3 {
+  margin: 1.7rem 0 0.6rem;
+  font-size: 1.18rem;
+}
+
+.mdx h4 {
+  margin: 1.4rem 0 0.55rem;
+  font-size: 1.05rem;
+}
+
+.mdx h5,
+.mdx h6 {
+  margin: 1.15rem 0 0.5rem;
+  font-size: 0.95rem;
+  letter-spacing: -0.01em;
 }
 
 .mdx a {
-  color: #4f4d47;
-  text-decoration-color: #b7b2a5;
+  color: #1d4ed8;
+  text-decoration-color: rgba(29, 78, 216, 0.35);
   text-underline-offset: 3px;
+}
+
+.mdx a:hover {
+  color: #1e40af;
+  text-decoration-color: rgba(30, 64, 175, 0.6);
+}
+
+.mdx a:visited {
+  color: #4338ca;
+  text-decoration-color: rgba(67, 56, 202, 0.35);
+}
+
+.mdx p {
+  margin: 0 0 1rem;
+  color: color-mix(in srgb, var(--text) 70%, var(--text-muted) 30%);
+}
+
+.mdx p strong {
+  color: var(--text);
+}
+
+.mdx p em {
+  color: color-mix(in srgb, var(--text) 60%, var(--text-muted) 40%);
 }
 
 .mdx p,
@@ -592,13 +670,33 @@ a {
   margin: 0 0 1rem;
 }
 
+.mdx hr {
+  border: 0;
+  height: 1px;
+  margin: 1.8rem 0;
+  background: linear-gradient(90deg, transparent, #cbc5b8 18%, #cbc5b8 82%, transparent);
+}
+
 .mdx ul,
 .mdx ol {
   padding-left: 1.2rem;
+  list-style-position: outside;
+}
+
+.mdx ul {
+  list-style-type: disc;
+}
+
+.mdx ol {
+  list-style-type: decimal;
 }
 
 .mdx li {
   margin-bottom: 0.35rem;
+}
+
+.mdx li::marker {
+  color: #9b968b;
 }
 
 .mdx code {
@@ -612,17 +710,51 @@ a {
 }
 
 .mdx pre {
-  border: 1px solid #d9d5cb;
-  border-radius: 0.9rem;
-  background: #f4f2ec;
-  padding: 0.85rem;
+  border: 1px solid #201f1c;
+  border-radius: 1rem;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.08), transparent 40%),
+    linear-gradient(180deg, #151412 0%, #0f0e0c 100%);
+  padding: 0.95rem 1.05rem;
   overflow-x: auto;
+  color: #f2f0ea;
+  box-shadow: 0 20px 45px rgba(16, 15, 13, 0.16);
 }
 
 .mdx pre code {
   border: 0;
   background: transparent;
   padding: 0;
+  color: inherit;
+  font-size: 0.86rem;
+  line-height: 1.65;
+  counter-reset: sh-line-number;
+}
+
+.mdx pre code .sh__line {
+  display: block;
+  padding-left: 3.2rem;
+  position: relative;
+}
+
+.mdx pre code .sh__line::before {
+  counter-increment: sh-line-number 1;
+  content: counter(sh-line-number);
+  position: absolute;
+  left: 0;
+  width: 2.6rem;
+  text-align: right;
+  color: rgba(226, 221, 212, 0.45);
+  user-select: none;
+}
+
+.mdx pre code .sh__token--comment {
+  font-style: italic;
+}
+
+.mdx pre code ::selection {
+  background: rgba(187, 154, 247, 0.25);
+  color: #ffffff;
 }
 
 .mdx blockquote {
@@ -668,6 +800,10 @@ a {
   margin-left: 0.4rem;
   opacity: 0;
   transition: opacity 180ms ease;
+}
+
+.mdx-heading {
+  position: relative;
 }
 
 h1:hover .anchor-link,

@@ -53,7 +53,15 @@ function RoundedImage(props) {
 }
 
 function Code({ children, ...props }) {
-  const codeHTML = highlight(children);
+  const className = props.className ?? '';
+  const isBlock = typeof className === 'string' && className.includes('language-');
+
+  if (!isBlock) {
+    return <code {...props}>{children}</code>;
+  }
+
+  const code = typeof children === 'string' ? children : String(children ?? '');
+  const codeHTML = highlight(code.replace(/\n$/, ''));
   return <code dangerouslySetInnerHTML={{ __html: codeHTML }} {...props} />;
 }
 
@@ -74,8 +82,9 @@ function createHeading(level) {
 
     return React.createElement(
       `h${level}`,
-      { id: slug },
+      { id: slug, className: 'mdx-heading' },
       [
+        React.createElement('span', { key: `text-${slug}` }, children),
         React.createElement(
           'a',
           {
@@ -86,8 +95,7 @@ function createHeading(level) {
           },
           '#'
         ),
-      ],
-      children
+      ]
     );
   };
 
