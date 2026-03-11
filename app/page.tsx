@@ -40,7 +40,7 @@ export default function HomePage() {
         />
         <h1 className="page-title">Hey 👋 Welcome to my site!</h1>
         <p className="page-subtitle">
-          I am Kye Gomez, founder of both Swarms and Agora Labs, and CEO of Swarms. I focus on large-scale multi-agent systems, alternative model architectures, and practical AI systems.
+          I am Kye Gomez, founder of both Swarms and previously led Agora Labs, my current focus is on researching large-scale multi-agent systems, alternative model architectures, and multi-modal models.
         </p>
         <p className="hero-reachout">
           Reach out to me via email:{' '}
