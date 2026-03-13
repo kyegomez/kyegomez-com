@@ -67,6 +67,24 @@ export function Navbar() {
               </Link>
             ))}
           </nav>
+          <a
+            href="https://x.com/KyeGomezB"
+            className="nav-icon-link"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Visit Kye Gomez on Twitter"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+            >
+              <path d="M19.46 4.03c-.63.37-1.32.64-2.05.78a3.54 3.54 0 0 0-6.07 2.42c0 .28.03.55.09.81-2.94-.15-5.55-1.56-7.29-3.71a3.54 3.54 0 0 0 1.1 4.73 3.52 3.52 0 0 1-1.6-.44v.04a3.55 3.55 0 0 0 2.84 3.47 3.6 3.6 0 0 1-1.59.06 3.55 3.55 0 0 0 3.31 2.46A7.12 7.12 0 0 1 3 18.07 10.06 10.06 0 0 0 8.52 20c6.27 0 9.7-5.2 9.7-9.7 0-.15 0-.3-.01-.45a6.93 6.93 0 0 0 1.7-1.77 6.9 6.9 0 0 1-2 .55 3.47 3.47 0 0 0 1.53-1.9z" />
+            </svg>
+          </a>
           <button
             type="button"
             className={`theme-toggle theme-toggle--${theme}`}
