@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 import { highlight } from 'sugar-high';
 import React from 'react';
+import remarkGfm from 'remark-gfm';
 
 function Table({ data }) {
   const headers = data.headers.map((header, index) => <th key={index}>{header}</th>);
@@ -128,5 +129,15 @@ const components = {
 };
 
 export function CustomMDX(props) {
-  return <MDXRemote {...props} components={{ ...components, ...(props.components || {}) }} />;
+  return (
+    <MDXRemote
+      {...props}
+      components={{ ...components, ...(props.components || {}) }}
+      options={{
+        mdxOptions: {
+          remarkPlugins: [remarkGfm],
+        },
+      }}
+    />
+  );
 }
