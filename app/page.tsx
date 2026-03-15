@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
+import { formatDate, getBlogPosts } from './blog/utils';
 import { absoluteUrl, siteConfig } from './seo';
 
 export const metadata: Metadata = {
@@ -21,6 +23,10 @@ export const metadata: Metadata = {
 };
 
 export default function HomePage() {
+  const latestPost = [...getBlogPosts()].sort((a, b) =>
+    new Date(a.metadata.publishedAt) > new Date(b.metadata.publishedAt) ? -1 : 1
+  )[0];
+
   return (
     <div className="page-wrap">
       <section className="page-block">
@@ -97,6 +103,24 @@ export default function HomePage() {
           </article>
         </div>
       </section>
+
+      {latestPost && (
+        <section style={{ marginTop: '0.9rem' }}>
+          <Link className="latest-post-link" href={`/blog/${latestPost.slug}`}>
+            <article className="card latest-post-card">
+              <div className="latest-post-meta">
+                <span className="section-kicker">Latest Post</span>
+                <span className="latest-post-date">{formatDate(latestPost.metadata.publishedAt)}</span>
+              </div>
+              <h2 className="latest-post-title">{latestPost.metadata.title}</h2>
+              {latestPost.metadata.summary && (
+                <p className="latest-post-summary">{latestPost.metadata.summary}</p>
+              )}
+              <div className="latest-post-cta">Read the latest essay</div>
+            </article>
+          </Link>
+        </section>
+      )}
     </div>
   );
 }
