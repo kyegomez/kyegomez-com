@@ -109,6 +109,11 @@ html[data-theme='dark'] body {
   color: var(--text);
 }
 
+html[data-theme='dark'] ::selection {
+  background: #c8b27a;
+  color: #171513;
+}
+
 a {
   color: inherit;
 }
@@ -996,6 +1001,11 @@ a {
 .mdx pre code ::selection {
   background: rgba(187, 154, 247, 0.25);
   color: #ffffff;
+}
+
+html[data-theme='dark'] .mdx pre code ::selection {
+  background: rgba(200, 178, 122, 0.9);
+  color: #171513;
 }
 
 .mdx blockquote {
