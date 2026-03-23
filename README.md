@@ -1,7 +1,6 @@
 # kyegomez.com
 
-My personal website for memes.
-
+My personal website :)
 
 # Run
 
