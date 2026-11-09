@@ -19,6 +19,7 @@ export default function Footer() {
         ['https://www.youtube.com/@kyegomez3242', 'YouTube'],
         ['https://medium.com/@kyeg', 'Medium'],
         ['https://www.linkedin.com/in/kye-g-38759a207/', 'LinkedIn'],
+        ['https://scholar.google.com/citations?user=THxlKAUAAAAJ&hl=en&oi=ao', 'Google Scholar'],
         ['mailto:kye@swarms.world', 'Email'],
       ],
     },
