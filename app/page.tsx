@@ -22,6 +22,70 @@ export const metadata: Metadata = {
   },
 };
 
+const SCHOLAR_URL = 'https://scholar.google.com/citations?user=THxlKAUAAAAJ&hl=en';
+const scholarPaper = (id: string) =>
+  `https://scholar.google.com/citations?view_op=view_citation&hl=en&user=THxlKAUAAAAJ&citation_for_view=THxlKAUAAAAJ:${id}`;
+
+// Source: Google Scholar profile, newest first.
+const papers: { title: string; authors: string; venue?: string; year?: string; href: string }[] = [
+  {
+    title:
+      'The Gomez Character–Line Minimization Theorem: Existence, Bounds, and Uncomputability of Minimal Program Representations',
+    authors: 'Kye Gomez',
+    year: '2026',
+    href: 'https://github.com/kyegomez/Gomez-Minimization-Paper/blob/main/paper.pdf',
+  },
+  {
+    title: 'RouteHub: A Low-Overhead, SDK-Native LLM Gateway for Agentic Workloads',
+    authors: 'Kye Gomez, Shryuk Grandhi',
+    year: '2026',
+    href: 'https://github.com/The-Swarm-Corporation/RouteHub/blob/main/docs/routehub.pdf',
+  },
+  {
+    title: 'GraphWorkflow: A Low-Overhead Compile-Once Graph Execution Engine for Multi-Agent Systems',
+    authors: 'Kye Gomez, Adi Chaudhary, Ayaan Gazali, Steve-Dusty',
+    year: '2026',
+    href: scholarPaper('qjMakFHDy7sC'),
+  },
+  {
+    title: 'AgentRearrange: A General-Purpose Multi-Agent Orchestrator',
+    authors: 'Kye Gomez, A. Chaudhary, K. Kuo',
+    year: '2026',
+    href: scholarPaper('u-x6o8ySG0sC'),
+  },
+  {
+    title: 'OpenMythos: A Theoretical Reconstruction of the Claude Mythos Architecture',
+    authors: 'Kye Gomez',
+    venue: 'GitHub',
+    year: '2026',
+    href: scholarPaper('2osOgNQ5qMEC'),
+  },
+  {
+    title: 'A Theory on Value Creation',
+    authors: 'Kye Gomez',
+    venue: 'SSRN 4968016',
+    year: '2024',
+    href: 'https://papers.ssrn.com/sol3/papers.cfm?abstract_id=4968016',
+  },
+  {
+    title: 'Tree of Thoughts',
+    authors: 'Kye Gomez',
+    year: '2023',
+    href: scholarPaper('9yKSN-GCB0IC'),
+  },
+  {
+    title: 'Multimodal-ToT',
+    authors: 'Kye Gomez',
+    year: '2023',
+    href: scholarPaper('u5HHmVD_uO8C'),
+  },
+  {
+    title: 'attn_res: Implementation of Attention Residuals',
+    authors: 'Kye Gomez',
+    href: scholarPaper('zYLM7Y9cAGgC'),
+  },
+];
+
 export default function HomePage() {
   const latestPost = [...getBlogPosts()].sort((a, b) =>
     new Date(a.metadata.publishedAt) > new Date(b.metadata.publishedAt) ? -1 : 1
@@ -87,6 +151,31 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
+          </article>
+
+          <article className="card home-row-card">
+            <div className="research-head">
+              <span className="section-kicker">My Research</span>
+              <a className="button subtle" href={SCHOLAR_URL} target="_blank" rel="noopener noreferrer">
+                Google Scholar
+              </a>
+            </div>
+            <ul className="research-list">
+              {papers.map((paper) => (
+                <li key={paper.title}>
+                  <a className="research-item" href={paper.href} target="_blank" rel="noopener noreferrer">
+                    <span className="research-year">{paper.year ?? '—'}</span>
+                    <span className="research-body">
+                      <span className="research-title">{paper.title}</span>
+                      <span className="research-meta">
+                        {paper.authors}
+                        {paper.venue ? ` · ${paper.venue}` : ''}
+                      </span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
           </article>
 
           <article className="card home-row-card">

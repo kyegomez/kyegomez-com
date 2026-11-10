@@ -1,6 +1,6 @@
 function ArrowIcon() {
   return (
-    <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg width="10" height="10" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         d="M2.07102 11.3494L0.963068 10.2415L9.2017 1.98864H2.83807L2.85227 0.454545H11.8438V9.46023H10.2955L10.3097 3.09659L2.07102 11.3494Z"
         fill="currentColor"
@@ -51,26 +51,36 @@ export default function Footer() {
 
   return (
     <footer className="footer-wrap">
-      <div className="page-block">
-        <div className="card-grid">
+      <div className="footer-panel">
+        <nav className="footer-grid" aria-label="Footer">
           {sections.map((section) => (
-            <section key={section.title} className="card col-span-12 sm:col-span-6 lg:col-span-3">
+            <section key={section.title} className="footer-col">
               <span className="section-kicker">{section.title}</span>
               <ul className="link-list">
-                {section.links.map(([href, label]) => (
-                  <li key={href}>
-                    <a href={href} target={href.startsWith('/') ? undefined : '_blank'} rel="noopener noreferrer">
-                      <span>{label}</span>
-                      <ArrowIcon />
-                    </a>
-                  </li>
-                ))}
+                {section.links.map(([href, label]) => {
+                  const external = href.startsWith('http');
+                  return (
+                    <li key={href}>
+                      <a
+                        href={href}
+                        target={external ? '_blank' : undefined}
+                        rel={external ? 'noopener noreferrer' : undefined}
+                      >
+                        <span>{label}</span>
+                        <ArrowIcon />
+                      </a>
+                    </li>
+                  );
+                })}
               </ul>
             </section>
           ))}
+        </nav>
+        <div className="footer-bottom">
+          <span>© {new Date().getFullYear()} Kye Gomez</span>
+          <span>Accelerating Technological Progress</span>
         </div>
       </div>
-      <p className="footer-meta">© {new Date().getFullYear()} Kye Gomez. Accelerating Technological Progress</p>
     </footer>
   );
 }
