@@ -123,7 +123,12 @@ export default function HomePage() {
       <section style={{ marginTop: '0.9rem' }}>
         <div className="home-rows">
           <article className="card home-row-card">
-            <span className="section-kicker">Experience</span>
+            <header className="section-head">
+              <div>
+                <h2 className="section-title">Experience</h2>
+                <p className="section-desc">The companies and labs I have founded and currently lead.</p>
+              </div>
+            </header>
             <div className="experience-stack">
               <div className="experience-item">
                 <div className="experience-head">
@@ -154,12 +159,17 @@ export default function HomePage() {
           </article>
 
           <article className="card home-row-card">
-            <div className="research-head">
-              <span className="section-kicker">My Research</span>
+            <header className="section-head">
+              <div>
+                <h2 className="section-title">My Research</h2>
+                <p className="section-desc">
+                  Papers on multi-agent systems, model architectures, and economics. Select any title to read it.
+                </p>
+              </div>
               <a className="button subtle" href={SCHOLAR_URL} target="_blank" rel="noopener noreferrer">
                 Google Scholar
               </a>
-            </div>
+            </header>
             <ul className="research-list">
               {papers.map((paper) => (
                 <li key={paper.title}>
@@ -179,7 +189,12 @@ export default function HomePage() {
           </article>
 
           <article className="card home-row-card">
-            <span className="section-kicker">Hobbies</span>
+            <header className="section-head">
+              <div>
+                <h2 className="section-title">Hobbies</h2>
+                <p className="section-desc">What I spend my time on outside of research and building.</p>
+              </div>
+            </header>
             <ul className="info-list">
               <li>Reading (library of over 1200 books)</li>
               <li>Basketball</li>
@@ -197,11 +212,14 @@ export default function HomePage() {
         <section style={{ marginTop: '0.9rem' }}>
           <Link className="latest-post-link" href={`/blog/${latestPost.slug}`}>
             <article className="card latest-post-card">
-              <div className="latest-post-meta">
-                <span className="section-kicker">Latest Post</span>
+              <header className="section-head">
+                <div>
+                  <h2 className="section-title">Latest Post</h2>
+                  <p className="section-desc">The most recent essay from my blog.</p>
+                </div>
                 <span className="latest-post-date">{formatDate(latestPost.metadata.publishedAt)}</span>
-              </div>
-              <h2 className="latest-post-title">{latestPost.metadata.title}</h2>
+              </header>
+              <h3 className="latest-post-title">{latestPost.metadata.title}</h3>
               {latestPost.metadata.summary && (
                 <p className="latest-post-summary">{latestPost.metadata.summary}</p>
               )}
